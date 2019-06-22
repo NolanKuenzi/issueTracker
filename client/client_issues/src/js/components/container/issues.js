@@ -115,7 +115,7 @@ const Issues = () => {
   /* Styles end */
   return (
     <div>
-      <h1>All issues for: {currentProject}</h1>
+      <h1 id="currentIssueH1">All issues for: {currentProject}</h1>
       <div>
         <form id="submitForm" onSubmit={event => submitFunc(event)} data-testid="submitForm">
           <h3>Submit a new issue:</h3>

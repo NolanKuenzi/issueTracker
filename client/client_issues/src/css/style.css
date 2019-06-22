@@ -2,6 +2,10 @@ body {
   background-color: #e69900;
 }
 
+#currentIssueH1 {
+  margin-left: 0.5em;
+}
+
 form {
   text-align: center;
   width: 30em;
