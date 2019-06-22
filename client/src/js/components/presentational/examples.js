@@ -18,7 +18,11 @@ const Examples = () => (
     </div>
     <div data-testid="exampleLink">
       <br />
-      <a href="N/A" target="_blank">
+      <a
+        href="https://shrouded-waters-89012.herokuapp.com/apitest"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <h2>EXAMPLE: Go to /apitest/ project issues</h2>
       </a>
     </div>
