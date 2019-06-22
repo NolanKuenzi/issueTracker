@@ -9,7 +9,10 @@ const ApiTests = () => {
   const issueReq = async (input, formEle, formType) => {
     if (formType === 'submitForm') {
       try {
-        const request = await axios.post('http://localhost:3000/api/issues/apitest', input);
+        const request = await axios.post(
+          'https://shrouded-waters-89012.herokuapp.com/api/issues/apitest',
+          input
+        );
         if (request.data.err !== undefined) {
           setData(request.data.err);
           return;
@@ -24,7 +27,10 @@ const ApiTests = () => {
     }
     if (formType === 'updateForm') {
       try {
-        const request = await axios.put('http://localhost:3000/api/issues/apitest', input);
+        const request = await axios.put(
+          'https://shrouded-waters-89012.herokuapp.com/api/issues/apitest',
+          input
+        );
         if (request.data.err !== undefined) {
           setData(request.data.err);
           return;
@@ -40,9 +46,12 @@ const ApiTests = () => {
     }
     if (formType === 'deleteForm') {
       try {
-        const request = await axios.delete('http://localhost:3000/api/issues/apitest', {
-          data: { issue_id: input.issue_id },
-        });
+        const request = await axios.delete(
+          'https://shrouded-waters-89012.herokuapp.com/api/issues/apitest',
+          {
+            data: { issue_id: input.issue_id },
+          }
+        );
         if (request.data.err !== undefined) {
           setData(request.data.err);
           return;

@@ -16,7 +16,7 @@ const Issues = () => {
 
   const getFunc = async () => {
     try {
-      const request = await axios.get(`http://localhost:3000${url}`);
+      const request = await axios.get(`https://shrouded-waters-89012.herokuapp.com${url}`);
       if (request.data.err !== undefined) {
         updateIssueData('An error occurred while connecting to MongoDB Atlas');
         return;
@@ -32,7 +32,7 @@ const Issues = () => {
     event.preventDefault();
     event.persist();
     if (event.target.issue_text === undefined) {
-      const request = await axios.post(`http://localhost:3000${url}`, null);
+      const request = await axios.post(`https://shrouded-waters-89012.herokuapp.com${url}`, null);
       updateIssueData(request.data.result);
       return;
       /* ^ For testing purposes ^ */
@@ -45,7 +45,7 @@ const Issues = () => {
       status_text: event.target.status_text.value,
     };
     try {
-      const request = await axios.post(`http://localhost:3000${url}`, body);
+      const request = await axios.post(`https://shrouded-waters-89012.herokuapp.com${url}`, body);
       if (request.data.err !== undefined) {
         alert('Please fill out all required fields.');
         return;
@@ -61,7 +61,7 @@ const Issues = () => {
   const closeFunc = async event => {
     event.persist();
     try {
-      const request = await axios.put(`http://localhost:3000${url}`, {issue_id: event.target.id, updated_on: new Date(), open: false});
+      const request = await axios.put(`https://shrouded-waters-89012.herokuapp.com${url}`, {issue_id: event.target.id, updated_on: new Date(), open: false});
       if (request.data.err !== undefined) {
         updateIssueData(request.data.err);
         return;
@@ -77,12 +77,12 @@ const Issues = () => {
 
   const deleteFunc = async event => {
     if (event.target.id ===  "") {
-      const request = await axios.delete(`http://localhost:3000${url}`, null);
+      const request = await axios.delete(`https://shrouded-waters-89012.herokuapp.com/${url}`, null);
       updateIssueData(request.data.result);
       return; /* ^ For testing purposes ^ */
     }
     try {
-      const request = await axios.delete(`http://localhost:3000${url}`, { 
+      const request = await axios.delete(`https://shrouded-waters-89012.herokuapp.com/${url}`, { 
         data: { issue_id: event.target.id },
       });
       if (request.data.err !== undefined) {
