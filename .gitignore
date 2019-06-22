@@ -1,0 +1,16 @@
+/node_modules
+.env
+
+# client
+/client/node_modules
+/client/dist
+
+#client_issues
+/client/client_issues/node_modules
+/client/client_issues/dist
+
+#test
+/test/1_unit-tests.js
+
+# misc
+.DS_Store

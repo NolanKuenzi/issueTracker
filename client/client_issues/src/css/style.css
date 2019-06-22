@@ -1,0 +1,91 @@
+body {
+  background-color: #e69900;
+}
+
+form {
+  text-align: center;
+  width: 30em;
+  height: 15em;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#topInputs {
+  margin-top: -0.9em;
+}
+
+.topI {
+  width: 29em;
+}
+
+textArea {
+  margin-top: 0.2em;
+  height: 8em;
+}
+
+.bottomI {
+  width: 9em;
+  height: 1em;
+  margin-right: 0.2em;
+  margin-left: 0.2em;
+}
+
+button {
+  width: 8em;
+  cursor: pointer;
+}
+
+button:active {
+  background-color: #e69900;
+  outline: none;
+  transform: translateY(0.5em);
+}
+
+#issueListSection {
+  margin-top: -2em;
+}
+
+#errDiv {
+  text-align: center;
+}
+
+ul {
+  list-style-type: none;
+  margin-top: -1em;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+li {
+  text-align: center;
+  margin-top: 1em;
+  margin-right: 3em;
+  border: 2px solid black;
+  width: 50%;
+}
+
+#lih3 {
+  margin-top: -0.1em;
+}
+
+#liId {
+  margin-bottom: 1.5em;
+}
+
+.smallText {
+  font-size: 0.7em;
+}
+
+#smallTextDiv {
+  margin-left: auto;
+  margin-right: auto;
+  width: 75%;
+  margin-bottom: -0.4em;
+}
+
+.close_Del {
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
+}
