@@ -77,12 +77,12 @@ const Issues = () => {
 
   const deleteFunc = async event => {
     if (event.target.id ===  "") {
-      const request = await axios.delete(`https://shrouded-waters-89012.herokuapp.com/${url}`, null);
+      const request = await axios.delete(`https://shrouded-waters-89012.herokuapp.com${url}`, null);
       updateIssueData(request.data.result);
       return; /* ^ For testing purposes ^ */
     }
     try {
-      const request = await axios.delete(`https://shrouded-waters-89012.herokuapp.com/${url}`, { 
+      const request = await axios.delete(`https://shrouded-waters-89012.herokuapp.com${url}`, { 
         data: { issue_id: event.target.id },
       });
       if (request.data.err !== undefined) {
