@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, cleanup, wait, fireEvent } from '@testing-library/react';
 import regeneratorRuntime, { async } from 'regenerator-runtime';
-import { watch } from 'fs';
 import ApiTests from '../components/container/apiTests';
 
 jest.mock('axios');
