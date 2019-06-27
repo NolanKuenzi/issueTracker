@@ -120,9 +120,9 @@ const Issues = () => {
         <form id="submitForm" onSubmit={event => submitFunc(event)} data-testid="submitForm">
           <h3>Submit a new issue:</h3>
           <div id="topInputs">
-            <input type="text" className="topI" placeholder="*Title " name="issue_title" />
+            <input type="text" id="topInput" placeholder="*Title " name="issue_title" />
             <br />
-            <textarea type="text" className="topI" id="textArea" placeholder="*Text" name="issue_text" />
+            <textarea type="text" id="textArea" placeholder="*Text" name="issue_text" />
           </div>
           <div id="bottomInputs">
             <input type="text" placeholder="*Created by" className="bottomI" name="created_by" />

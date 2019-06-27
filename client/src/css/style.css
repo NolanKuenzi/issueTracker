@@ -29,6 +29,7 @@ h1 {
 form {
   display: flex;
   flex-direction: column;
+  width: 10em;
 }
 
 input {
@@ -37,11 +38,12 @@ input {
 }
 
 textarea {
+  height: 2.5em;
   width: 9em;
-  height: 2.1em;
 }
 
 button {
+  margin-top: 0.2em;
   width: 8em;
   cursor: pointer;
 }
@@ -62,11 +64,17 @@ button:active {
 
 #checkBox {
   height: 1.2em;
-  margin-left: 0em;
+  position: relative;
+  right: 0.5em;
 }
 
-#checkBoxText {
-  margin-left: -5em;
+label {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+form span {
+  font-size: 0.8em;
 }
 
 /* <Footer /> */

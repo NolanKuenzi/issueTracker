@@ -147,20 +147,18 @@ const ApiTests = () => {
         <form id="updateForm" onSubmit={event => updateFunc(event)}>
           <input type="text" placeholder="*_id" name="issue_id" />
           <input type="text" placeholder="(opt)Title" name="issue_title" />
-          <textarea placeholder="(opt)Text" name="issue_text" />
+          <textarea type="text" placeholder="(opt)Text" name="issue_text" />
           <input type="text" placeholder="(opt)Created by" name="created_by" />
           <input type="text" placeholder="(opt)Assigned to" name="assigned_to" />
           <input type="text" placeholder="(opt)Status text" name="status_text" />
-          <span>
-            <input
-              type="checkbox"
-              id="checkBox"
-              name="check_box"
-              onInput={event => toggleCheckbox(event)}
-              value={checkBox}
-            />
-            <span id="checkBoxText">Check to close issue</span>
-          </span>
+          <input
+            type="checkbox"
+            id="checkBox"
+            name="check_box"
+            onInput={event => toggleCheckbox(event)}
+            value={checkBox}
+          />
+          <span>*Check to close issue</span>
           <button type="submit" name="updateButton">
             Submit Issue
           </button>
