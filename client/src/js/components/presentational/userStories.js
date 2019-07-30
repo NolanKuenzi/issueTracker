@@ -1,11 +1,12 @@
 import React from 'react';
+import Examples from './examples';
+import Footer from './footer';
 
 const UserStories = () => (
   <div>
     <div id="usrStoriesId">
-      <h3>User Stories</h3>
       <ol data-testid="userStoriesOl">
-        <li>Prevent cross site scripting(XSS attack).</li>
+        <li>I can prevent a cross site scripting(XSS attack).</li>
         <li>
           I can <b>POST</b> /api/issues/{`{projectname}`} with form data containing required{' '}
           <em>issue_title</em>, <em>issue_text</em>, <em>created_by</em>, and optional{' '}
@@ -38,6 +39,8 @@ const UserStories = () => (
         <li>All 11 functional tests are complete and passing.</li>
       </ol>
     </div>
+    <Examples />
+    <Footer />
   </div>
 );
 

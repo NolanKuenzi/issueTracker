@@ -17,10 +17,24 @@ chai.use(chaiHttp);
 
 describe('Functional Tests', function() {
   this.timeout(10000);
-  describe('POST /api/issues/{project} => object with issue data', function() {
-    
+  /* Clear DB */
+  after(function () {
+    MongoClient.connect(CONNECTION_STRING, function(err, db) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      db.db('issueTrackerDB').collection('test').drop(function(err) {
+        if (err) {
+          console.log(err);
+        }
+        db.close();
+      });
+    });
+  });
+  describe('POST /api/issues/{project} => object with issue data', function() { 
     it('Every field filled in', function(done) {
-     chai.request(server)
+     chai.request(server) 
       .post('/api/issues/test')
       .send({
         issue_title: 'testObject1',
@@ -51,8 +65,8 @@ describe('Functional Tests', function() {
         assert.equal(res.body.result[1].issue_title, 'testObject2');
         assert.equal(res.body.result[1].issue_text, 'Second MongoDB test object');
         assert.equal(res.body.result[1].created_by, 'Testing Team');
-        assert.equal(res.body.result[1].assigned_to, null);
-        assert.equal(res.body.result[1].status_text, null);
+        assert.equal(res.body.result[1].assigned_to, '');
+        assert.equal(res.body.result[1].status_text, '');
         done();
       });
     });
@@ -104,8 +118,8 @@ describe('Functional Tests', function() {
         assert.equal(res.body.result[0].issue_title, 'testObject2');
         assert.equal(res.body.result[0].issue_text, 'Second MongoDB test object');
         assert.equal(res.body.result[0].created_by, 'Testing Team');
-        assert.equal(res.body.result[0].assigned_to,  null);
-        assert.equal(res.body.result[0].status_text, null);
+        assert.equal(res.body.result[0].assigned_to,  '');
+        assert.equal(res.body.result[0].status_text, '');
 
         assert.property(res.body.result[0], 'issue_title');
         assert.property(res.body.result[0], 'issue_text');
@@ -189,8 +203,8 @@ describe('Functional Tests', function() {
           assert.equal(res.body.result[1].issue_title, 'testObject2_updated');
           assert.equal(res.body.result[1].issue_text, 'Second MongoDB test object has been updated');
           assert.equal(res.body.result[1].created_by, 'Testing Team');
-          assert.equal(res.body.result[1].assigned_to,  null);
-          assert.equal(res.body.result[1].status_text, null);
+          assert.equal(res.body.result[1].assigned_to,  '');
+          assert.equal(res.body.result[1].status_text, '');
           done();
         });
       });
@@ -203,7 +217,7 @@ describe('Functional Tests', function() {
       .delete('/api/issues/test')
       .send({issue_id: ''})
       .end(function(err, res) {
-        assert.equal(res.body.err, 'no updated field sent')
+        assert.equal(res.body.err, 'Please fill out all required fields')
         done();
       });
     });
@@ -223,19 +237,5 @@ describe('Functional Tests', function() {
         });
       });
   });  
-      
-  /* Clear DB */
-  MongoClient.connect(CONNECTION_STRING, function(err, db) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    db.db('issueTrackerDB').collection('test').drop(function(err) {
-      if (err) {
-        console.log(err);
-      }
-      db.close();
-    });
-  });
-
-}); 
+});
+    

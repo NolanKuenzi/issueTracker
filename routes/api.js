@@ -13,11 +13,12 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectID;
 require('dotenv').config();
 const CONNECTION_STRING = process.env.DB;
+const { body, sanitizeBody, validationResult } = require('express-validator');
 
 module.exports = function (app) {
 
   app.route('/api/issues/:project?')
-    .get(function (req, res){
+    .get(function (req, res) {
       MongoClient.connect(CONNECTION_STRING, function(err, db) {
         if (err) {
           console.log('An error occurred while connecting to MongoDB Atlas');
@@ -53,11 +54,44 @@ module.exports = function (app) {
       });
     })
 
-    .post(function (req, res){
-      if (req.body.issue_title === '' || req.body.issue_text === '' || req.body.created_by === '') {
-        res.json({err: 'Please fill out all required fields'});
+    .post([
+      body('issue_title')
+        .not().isEmpty().withMessage('Please fill out all required fields')
+        .trim()
+        .isLength({max: 140}).withMessage('Title character limit of 140 has been exceeded'),
+      sanitizeBody('issue_title')
+        .escape(),
+      body('issue_text')
+        .not().isEmpty().withMessage('Please fill out all required fields')
+        .trim()
+        .isLength({max: 140}).withMessage('Issue text character limit of 140 has been exceeded'),
+      sanitizeBody('issue_text')
+        .escape(),
+      body('created_by')
+        .not().isEmpty().withMessage('Please fill out all required fields')
+        .trim()
+        .isLength({max: 140}).withMessage('"Created By" character limit of 140 has been exceeded'),
+      sanitizeBody('created_by')
+        .escape(),
+      body('assigned_to')
+        .optional()
+        .trim()
+        .isLength({max: 140}).withMessage('"Assigned To" character limit of 140 has been exceeded'),
+      sanitizeBody('assigned_to')
+        .escape(),
+      body('status_text')
+        .optional()
+        .trim()
+        .isLength({max: 140}).withMessage('"Status Text" character limit of 140 has been exceeded'),
+      sanitizeBody('status_text')
+        .escape(),
+    ], 
+    function (req, res) {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.json({err: errors.array()[0].msg});
         return;
-      } 
+      }
       MongoClient.connect(CONNECTION_STRING, function(err, db) {
         if (err) {
           console.log('An error occurred while connecting to MongoDB Atlas');
@@ -66,7 +100,7 @@ module.exports = function (app) {
         }
         const data_base = db.db('issueTrackerDB').collection(req.params.project);
         const add_issue = new Promise(function(resolve, reject) {
-          const issue_obj = {issue_title: req.body.issue_title, issue_text: req.body.issue_text, created_on: new Date(), updated_on: new Date(), created_by: req.body.created_by, assigned_to: req.body.assigned_to, open: true, status_text: req.body.status_text};
+        const issue_obj = {issue_title: req.body.issue_title, issue_text: req.body.issue_text, created_on: new Date(new Date(new Date().toDateString("UTC-7")).setHours(new Date().getHours(), new Date().getMinutes(), new Date().getSeconds(), new Date().getMilliseconds())), updated_on: new Date(new Date(new Date().toDateString("UTC-7")).setHours(new Date().getHours(), new Date().getMinutes(), new Date().getSeconds(), new Date().getMilliseconds())), created_by: req.body.created_by, assigned_to: req.body.assigned_to, open: true, status_text: req.body.status_text};
           data_base.insertOne(issue_obj, function(err) {
             if (err) {
               reject();
@@ -90,9 +124,55 @@ module.exports = function (app) {
       }); 
     })
     
-    .put(function (req, res){
-      if (req.body.issue_id === '' || req.body.issue_id === undefined || req.body.issue_id === null) {
-        res.json({err: 'Please fill out all required fields'});
+    .put([
+      body('issue_id')
+        .not().isEmpty().withMessage('Please fill out all required fields')
+        .trim()
+        .isLength({max: 140}).withMessage('Id character limit of 140 has been exceeded')
+        .custom(function(issueId, bodyObj) {
+          const response  = Object.assign({}, bodyObj.req.body);
+          if (response.issue_title === "" && response.issue_text === "" && response.created_by === "" && response.assigned_to === "" && response.status_text === "") {
+            throw new Error('No updated field sent');
+          }
+          return true;
+        }),
+      sanitizeBody('issue_id')
+        .escape(),
+      body('issue_title')
+        .optional()
+        .trim()
+        .isLength({max: 140}).withMessage('Title character limit of 140 has been exceeded'),
+      sanitizeBody('issue_title')
+        .escape(),
+      body('issue_text')
+        .optional()
+        .trim()
+        .isLength({max: 140}).withMessage('Issue text character limit of 140 has been exceeded'),
+      sanitizeBody('issue_text')
+        .escape(),
+      body('created_by')
+        .optional()
+        .trim()
+        .isLength({max: 140}).withMessage('"Created By" character limit of 140 has been exceeded'),
+      sanitizeBody('created_by')
+        .escape(),
+      body('assigned_to')
+        .optional()
+        .trim()
+        .isLength({max: 140}).withMessage('"Assigned To" character limit of 140 has been exceeded'),
+      sanitizeBody('assigned_to')
+        .escape(),
+      body('status_text')
+        .optional()
+        .trim()
+        .isLength({max: 140}).withMessage('"Status Text" character limit of 140 has been exceeded'),
+      sanitizeBody('status_text')
+        .escape(),
+    ], 
+    function (req, res) {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.json({err: errors.array()[0].msg});
         return;
       }
       MongoClient.connect(CONNECTION_STRING, function(err, db) {
@@ -107,9 +187,6 @@ module.exports = function (app) {
           const find_issue = result.filter(item => ObjectId(item._id).toString() === req.body.issue_id);
           if (find_issue.length === 0) {
             reject('Issue not found');
-          }
-          if (req.body.issue_title === '' && req.body.issue_text === '' && req.body.created_by === '' && req.body.assigned_to === '' && req.body.status_text === '' && req.body.open.toString() === find_issue[0].open.toString()) {
-            reject('No updated field sent');
           }
           if (err) {
             reject('An error occurred while connecting to MongoDB Atlas');
@@ -130,7 +207,7 @@ module.exports = function (app) {
           if (update_data.open === 'false') {
             update_data.open = false;
           }
-          update_data.updated_on = new Date();
+          update_data.updated_on = new Date(new Date(new Date().toDateString("UTC-7")).setHours(new Date().getHours(), new Date().getMinutes(), new Date().getSeconds(), new Date().getMilliseconds()));
           data_base.updateOne({_id: ObjectId(req.body.issue_id)}, {$set: update_data}, function(err) {
             if (err) {
               reject('An error occurred while connecting to MongoDB Atlas');
@@ -149,9 +226,18 @@ module.exports = function (app) {
       });
     })
     
-    .delete(function (req, res){
-      if (req.body.issue_id === '') {
-        res.json({err: 'no updated field sent'});
+    .delete([
+      body('issue_id')
+        .not().isEmpty().withMessage('Please fill out all required fields')
+        .trim()
+        .isLength({max: 140}).withMessage('Id character limit of 140 has been exceeded'),
+      sanitizeBody('issue_id')
+        .escape(),
+    ],
+    function (req, res) {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.json({err: errors.array()[0].msg});
         return;
       }
       MongoClient.connect(CONNECTION_STRING, function(err, db) {

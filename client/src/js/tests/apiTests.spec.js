@@ -36,6 +36,8 @@ describe('<ApiTests /> component', () => {
   test('Page renders put data recieved from axios', async () => {
     console.error = jest.fn(); /* eslint-disable-line */
     const { container } = render(<ApiTests />);
+    const issueId = container.querySelector('[name="issue_id"]');
+    fireEvent.change(issueId, { target: { value: '5d033feoa78a992482ecf464' } });
     const updateButton = container.querySelector('[name="updateButton"]');
     fireEvent.click(updateButton);
     await wait(() => {

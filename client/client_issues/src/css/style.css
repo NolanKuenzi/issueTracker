@@ -28,7 +28,7 @@ form {
   width: 65%;
 }
 
-.bottomI {
+.lowerInputs {
   width: 20%;
   height: 1em;
   margin-right: 0.2em;
@@ -59,16 +59,17 @@ button:active {
 ul {
   list-style-type: none;
   margin-top: -1em;
-  align-items: center;
-  display: flex;
-  flex-direction: column;
+  margin-right: 2.5em;
 }
 
 li {
   text-align: center;
   margin-top: 1em;
-  margin-right: 3em;
   border: 2px solid black;
+  overflow: scroll;
+  padding: 0.5em;
+  margin-left: auto;
+  margin-right: auto;
   width: 50%;
 }
 

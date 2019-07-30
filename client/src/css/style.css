@@ -4,24 +4,41 @@ body {
 
 h1 {
   text-align: center;
-}
-
-#usrStoriesId {
-  margin-left: 2em;
-}
-
-#examplesId {
-  margin-left: 2em;
+  text-decoration: underline;
 }
 
 #apiTestsId {
-  border-top: 0.1em solid black;
-  border-bottom: 0.1em solid black;
   margin-top: 3em;
-  margin-left: 2em;
-  margin-right: 2em;
-  padding-top: 2em;
-  padding-bottom: 10em;
+  margin-left: 1em;
+}
+
+#usrStoriesToggle {
+  text-align: center;
+  width: 12em;
+  height: 1.5em;
+  padding-top: 0.5em;
+  border: 0.1em solid black;
+  cursor: pointer;
+  margin-top: 2em;
+  margin-left: -0.2em;
+}
+
+#arrowSpan {
+  font-size: 0.7em;
+}
+
+#usrStoriesId {
+  margin-left: -1.5em;
+  width: 75%;
+}
+
+ol li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+#examplesId {
+  width: 75%;
 }
 
 /* shared <form /> attributes */
@@ -80,6 +97,9 @@ form span {
 /* <Footer /> */
 
 #footer {
+  width: 100%;
   text-align: center;
   margin-top: 2em;
+  padding-top: 2em;
+  padding-bottom: 2em;
 }

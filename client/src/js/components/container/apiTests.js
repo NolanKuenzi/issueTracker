@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import regeneratorRuntime, { async } from 'regenerator-runtime';
+import UserStories from '../presentational/userStories';
 
 const ApiTests = () => {
   const [data, setData] = useState(null);
   const [checkBox, setCheckBox] = useState(true);
+  const [usrStoriesIcon, setUsrStoriesIcon] = useState(false);
 
-  const issueReq = async (input, formEle, formType) => {
+  const issueReq = async (input, formType) => {
     if (formType === 'submitForm') {
       try {
         const request = await axios.post(
@@ -63,56 +65,43 @@ const ApiTests = () => {
         setData('An error occurred while connecting to MongoDB Atlas');
       }
     }
-    if (formEle === null) {
-      return;
-    } /* ^ For testing purposes ^ */
-    formEle.reset();
+    const clearForm = document.getElementById(formType);
+    clearForm.reset();
   };
 
   const submitFunc = event => {
     event.preventDefault();
-    let body = null;
-    if (event.target.issue_title === undefined) {
-      issueReq(body, null, 'submitForm');
-      return;
-    } /* ^ For testing purposes ^ */
-    body = {
-      issue_title: event.target.issue_title.value,
-      issue_text: event.target.issue_text.value,
-      created_by: event.target.created_by.value,
-      assigned_to: event.target.assigned_to.value,
-      status_text: event.target.status_text.value,
+    const submitInputs = document.getElementsByClassName('submitInputs');
+    const body = {
+      issue_title: submitInputs[0].value,
+      issue_text: submitInputs[1].value,
+      created_by: submitInputs[2].value,
+      assigned_to: submitInputs[3].value,
+      status_text: submitInputs[4].value,
     };
-    issueReq(body, event.target, 'submitForm');
+    issueReq(body, 'submitForm');
   };
   const updateFunc = event => {
     event.preventDefault();
-    let body = { issue_id: '5d033feoa78a992482ecf464' };
-    if (event.target.issue_id === undefined) {
-      issueReq(body, null, 'updateForm');
-      return;
-    } /* ^ For testing purposes ^ */
-    body = {
-      issue_id: event.target.issue_id.value,
-      issue_title: event.target.issue_title.value,
-      issue_text: event.target.issue_text.value,
-      created_by: event.target.created_by.value,
-      assigned_to: event.target.assigned_to.value,
-      status_text: event.target.status_text.value,
-      open: event.target.check_box.value,
+    const updateInputs = document.getElementsByClassName('updateInputs');
+    const body = {
+      issue_id: updateInputs[0].value,
+      issue_title: updateInputs[1].value,
+      issue_text: updateInputs[2].value,
+      created_by: updateInputs[3].value,
+      assigned_to: updateInputs[4].value,
+      status_text: updateInputs[5].value,
+      open: updateInputs[6].value,
     };
-    issueReq(body, event.target, 'updateForm');
+    issueReq(body, 'updateForm');
   };
   const deleteFunc = event => {
     event.preventDefault();
-    if (event.target.issue_id === undefined) {
-      issueReq({ data: { issue_id: null } }, null, 'deleteForm');
-      return;
-    } /* ^ For testing purposes ^ */
+    const delInput = document.getElementById('deleteInput');
     const body = {
-      issue_id: event.target.issue_id.value,
+      issue_id: delInput.value,
     };
-    issueReq(body, event.target, 'deleteForm');
+    issueReq(body, 'deleteForm');
   };
   const toggleCheckbox = event => {
     event.preventDefault();
@@ -122,6 +111,13 @@ const ApiTests = () => {
     }
     setCheckBox(true);
   };
+  const userStoriesToggle = () => {
+    if (usrStoriesIcon === false) {
+      setUsrStoriesIcon(true);
+    } else {
+      setUsrStoriesIcon(false);
+    }
+  };
   return (
     <div id="apiTestsId">
       <h2>API Tests:</h2>
@@ -130,11 +126,21 @@ const ApiTests = () => {
           Submit issue on <em>apitest</em>
         </h3>
         <form id="submitForm" onSubmit={event => submitFunc(event)}>
-          <input type="text" placeholder="*Title" name="issue_title" />
-          <textarea placeholder="*Text" name="issue_text" />
-          <input type="text" placeholder="*Created by" name="created_by" />
-          <input type="text" placeholder="(opt)Assigned to" name="assigned_to" />
-          <input type="text" placeholder="(opt)Status text" name="status_text" />
+          <input className="submitInputs" type="text" placeholder="*Title" name="issue_title" />
+          <textarea className="submitInputs" placeholder="*Text" name="issue_text" />
+          <input className="submitInputs" type="text" placeholder="*Created by" name="created_by" />
+          <input
+            className="submitInputs"
+            type="text"
+            placeholder="(opt)Assigned to"
+            name="assigned_to"
+          />
+          <input
+            className="submitInputs"
+            type="text"
+            placeholder="(opt)Status text"
+            name="status_text"
+          />
           <button type="submit" name="submitButton">
             Submit Issue
           </button>
@@ -145,20 +151,41 @@ const ApiTests = () => {
           Update issue on <em>apitest</em> (Change any or all to update issue on the _id supplied)
         </h3>
         <form id="updateForm" onSubmit={event => updateFunc(event)}>
-          <input type="text" placeholder="*_id" name="issue_id" />
-          <input type="text" placeholder="(opt)Title" name="issue_title" />
-          <textarea type="text" placeholder="(opt)Text" name="issue_text" />
-          <input type="text" placeholder="(opt)Created by" name="created_by" />
-          <input type="text" placeholder="(opt)Assigned to" name="assigned_to" />
-          <input type="text" placeholder="(opt)Status text" name="status_text" />
+          <input className="updateInputs" type="text" placeholder="*_id" name="issue_id" />
+          <input className="updateInputs" type="text" placeholder="(opt)Title" name="issue_title" />
+          <textarea
+            className="updateInputs"
+            type="text"
+            placeholder="(opt)Text"
+            name="issue_text"
+          />
           <input
+            className="updateInputs"
+            type="text"
+            placeholder="(opt)Created by"
+            name="created_by"
+          />
+          <input
+            className="updateInputs"
+            type="text"
+            placeholder="(opt)Assigned to"
+            name="assigned_to"
+          />
+          <input
+            className="updateInputs"
+            type="text"
+            placeholder="(opt)Status text"
+            name="status_text"
+          />
+          <input
+            className="updateInputs"
             type="checkbox"
             id="checkBox"
             name="check_box"
             onInput={event => toggleCheckbox(event)}
             value={checkBox}
           />
-          <span>*Check to close issue</span>
+          <span>*Check to close/re-open issue</span>
           <button type="submit" name="updateButton">
             Submit Issue
           </button>
@@ -168,8 +195,8 @@ const ApiTests = () => {
         <h3>
           Delete issue on <em>apitest</em>
         </h3>
-        <form id="deleteFrom" onSubmit={event => deleteFunc(event)}>
-          <input type="text" placeholder="_id" name="issue_id" />
+        <form id="deleteForm" onSubmit={event => deleteFunc(event)}>
+          <input type="text" id="deleteInput" name="issue_id" placeholder="_id" />
           <button type="submit" name="deleteButton">
             Delete Issue
           </button>
@@ -178,8 +205,14 @@ const ApiTests = () => {
       <div id="returnedData" name="axiosData">
         {data === null ? null : data}
       </div>
+      <div>
+        <div id="usrStoriesToggle" onClick={() => userStoriesToggle()}>
+          <span>User Stories </span>
+          <span id="arrowSpan">{usrStoriesIcon === false ? '▼' : '▲'}</span>
+        </div>
+        <div>{usrStoriesIcon === false ? null : <UserStories />}</div>
+      </div>
     </div>
   );
 };
-
 export default ApiTests;

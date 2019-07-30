@@ -3,7 +3,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import regeneratorRuntime, { async } from 'regenerator-runtime';
 
-
 const Issues = () => {
   const [defaultData, setDefaultData] = useState(false);
   const [issueData, updateIssueData] = useState(null);
@@ -31,23 +30,19 @@ const Issues = () => {
   const submitFunc = async event => {
     event.preventDefault();
     event.persist();
-    if (event.target.issue_text === undefined) {
-      const request = await axios.post(`https://shrouded-waters-89012.herokuapp.com${url}`, null);
-      updateIssueData(request.data.result);
-      return;
-      /* ^ For testing purposes ^ */
-    }
+    const upperInputs = document.getElementsByClassName('upperInputs');
+    const lowerInputs = document.getElementsByClassName('lowerInputs');
     const body = {
-      issue_title: event.target.issue_title.value,
-      issue_text: event.target.issue_text.value,
-      created_by: event.target.created_by.value,
-      assigned_to: event.target.assigned_to.value,
-      status_text: event.target.status_text.value,
+      issue_title: upperInputs[0].value,
+      issue_text: upperInputs[1].value,
+      created_by: lowerInputs[0].value,
+      assigned_to: lowerInputs[1].value,
+      status_text: lowerInputs[2].value,
     };
     try {
       const request = await axios.post(`https://shrouded-waters-89012.herokuapp.com${url}`, body);
       if (request.data.err !== undefined) {
-        alert('Please fill out all required fields.');
+        alert(request.data.err);
         return;
       }
       event.target.reset();
@@ -79,9 +74,11 @@ const Issues = () => {
     if (event.target.id ===  "") {
       const request = await axios.delete(`https://shrouded-waters-89012.herokuapp.com${url}`, null);
       updateIssueData(request.data.result);
-      return; /* ^ For testing purposes ^ */
-    }
+      return;
+      /* ^ For testing purposes ^ */
+    } 
     try {
+      event.persist();
       const request = await axios.delete(`https://shrouded-waters-89012.herokuapp.com${url}`, { 
         data: { issue_id: event.target.id },
       });
@@ -120,22 +117,22 @@ const Issues = () => {
         <form id="submitForm" onSubmit={event => submitFunc(event)} data-testid="submitForm">
           <h3>Submit a new issue:</h3>
           <div id="topInputs">
-            <input type="text" id="topInput" placeholder="*Title " name="issue_title" />
+            <input className="upperInputs" type="text" id="topInput" placeholder="*Title " name="issue_title" />
             <br />
-            <textarea type="text" id="textArea" placeholder="*Text" name="issue_text" />
+            <textarea className="upperInputs" type="text" id="textArea" placeholder="*Text" name="issue_text" />
           </div>
           <div id="bottomInputs">
-            <input type="text" placeholder="*Created by" className="bottomI" name="created_by" />
+            <input type="text" placeholder="*Created by" className="lowerInputs" name="created_by" />
             <input
               type="text"
               placeholder="(opt)Assigned to"
-              className="bottomI"
+              className="lowerInputs"
               name="assigned_to"
             />
             <input
               type="text"
               placeholder="(opt)Status text"
-              className="bottomI"
+              className="lowerInputs"
               name="status_text"
             />
           </div>
@@ -168,7 +165,7 @@ const Issues = () => {
                   </div>
                   <div>
                     <span id={item._id} className="smallText close_Del" onClick={event => closeFunc(event)}>Close?</span>{' '}
-                    <span id={item._id} data-testid={"deleteSpan"+index}className="smallText close_Del" onClick={event => deleteFunc(event)}>Delete?</span>
+                    <span id={item._id} data-testid={"deleteSpan"+index} className="smallText close_Del" onClick={event => deleteFunc(event)}>Delete?</span>
                   </div>
                 </div>
               </li>
