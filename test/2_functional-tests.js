@@ -85,7 +85,6 @@ describe('Functional Tests', function() {
         done();
       });
     }); 
-  
   });
 
   describe('GET /api/issues/{project} => Array of objects with issue data', function() {
@@ -200,11 +199,11 @@ describe('Functional Tests', function() {
         .put('/api/issues/test')
         .send({issue_id: res.body.result[1]._id, issue_title: 'testObject2_updated', issue_text: 'Second MongoDB test object has been updated'})
         .end(function(err, res) {
-          assert.equal(res.body.result[1].issue_title, 'testObject2_updated');
-          assert.equal(res.body.result[1].issue_text, 'Second MongoDB test object has been updated');
-          assert.equal(res.body.result[1].created_by, 'Testing Team');
-          assert.equal(res.body.result[1].assigned_to,  '');
-          assert.equal(res.body.result[1].status_text, '');
+          assert.equal(res.body.result[0].issue_title, 'testObject2_updated');
+          assert.equal(res.body.result[0].issue_text, 'Second MongoDB test object has been updated');
+          assert.equal(res.body.result[0].created_by, 'Testing Team');
+          assert.equal(res.body.result[0].assigned_to,  '');
+          assert.equal(res.body.result[0].status_text, '');
           done();
         });
       });

@@ -38,8 +38,7 @@ const ApiTests = () => {
           return;
         }
         if (request.data.result !== undefined) {
-          const displayIssue = request.data.result.filter(item => item._id === input.issue_id);
-          setData(`Updated Issue: ${JSON.stringify(displayIssue[0])}`);
+          setData(`Updated Issue: ${JSON.stringify(request.data.result[0])}`);
         }
       } catch (error) {
         setData('An error occurred while connecting to MongoDB Atlas');
@@ -204,6 +203,23 @@ const ApiTests = () => {
       </div>
       <div id="returnedData" name="axiosData">
         {data === null ? null : data}
+      </div>
+      <div id="viewProjIssues">
+        <h3>To access a project issue page:</h3>
+        <span>{'/{projectName}'}</span>
+        <h3>To filter issues:</h3>
+        <h4>Example:</h4>
+        <span>{'/{projectName}?open=true&assigned_to=Joe'}</span>
+        <h4>Filterable fields:</h4>
+        <ul id="filterUl">
+          <li>_id</li>
+          <li>issue_title</li>
+          <li>issue_text</li>
+          <li>created_by</li>
+          <li>assigned_to</li>
+          <li>open</li>
+          <li>status_text</li>
+        </ul>
       </div>
       <div>
         <div id="usrStoriesToggle" onClick={() => userStoriesToggle()}>

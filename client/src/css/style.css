@@ -12,6 +12,15 @@ h1 {
   margin-left: 1em;
 }
 
+#viewProjIssues {
+  margin-top: 3em;
+}
+
+#filterUl {
+  margin-top: -0.5em;
+  margin-left: -1em;
+}
+
 #usrStoriesToggle {
   text-align: center;
   width: 12em;

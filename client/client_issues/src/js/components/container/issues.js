@@ -6,22 +6,19 @@ import regeneratorRuntime, { async } from 'regenerator-runtime';
 const Issues = () => {
   const [defaultData, setDefaultData] = useState(false);
   const [issueData, updateIssueData] = useState(null);
-
   const currentProject = window.location.pathname.replace(/\//g, '');
-  /* ^ Production  ^ */
-  // const currentProject = 'apitest';
-  /* ^ Devleopment & Testing ^ */
-  const url = `/api/issues/${currentProject}`;
+  const query = window.location.search;
+  const url = query === '' ? `/api/issues/${currentProject}` : `/api/issues/${currentProject}${query}`;
   
   const getFunc = async () => {
     try {
       const request = await axios.get(`https://shrouded-waters-89012.herokuapp.com${url}`);
       if (request.data.err !== undefined) {
-        updateIssueData('An error occurred while connecting to MongoDB Atlas');
+        updateIssueData(request.data.err);
         return;
       }
       updateIssueData(request.data.result);
-    } catch(error) {
+    } catch (error) {
       console.log(error);
       updateIssueData('An error occurred while connecting to MongoDB Atlas');
     }
@@ -61,9 +58,7 @@ const Issues = () => {
         updateIssueData(request.data.err);
         return;
       }
-      const findIssue = request.data.result.filter(item => item._id === event.target.id);
-      alert(`Issue: ${findIssue[0].issue_title}(_id: ${findIssue[0]._id}) has been closed`);
-      updateIssueData(request.data.result);
+      alert(`Issue: ${request.data.result[0].issue_title}(_id: ${request.data.result[0]._id}) has been closed`);
     } catch(error) {
       console.log(error);
       updateIssueData('An error occurred while connecting to MongoDB Atlas');

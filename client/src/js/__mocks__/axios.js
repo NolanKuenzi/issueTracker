@@ -29,17 +29,6 @@ export default {
       data: {
         result: [
           {
-            _id: '8d035f0ma78a992duiecf494',
-            issue_title: 'Bugs',
-            issue_text: 'JavaScript code is infested with bugs.',
-            created_on: 'new Date()',
-            updated_on: 'new Date()',
-            created_by: 'Samuel',
-            assigned_to: 'Amanda',
-            status_text: 'Not Resolved',
-            open: true,
-          },
-          {
             _id: '5d033feoa78a992482ecf464',
             issue_title: 'Server Error',
             issue_text: 'It is throwing a 403 error',

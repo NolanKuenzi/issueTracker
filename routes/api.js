@@ -13,42 +13,102 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectID;
 require('dotenv').config();
 const CONNECTION_STRING = process.env.DB;
-const { body, sanitizeBody, validationResult } = require('express-validator');
+const { query, body, sanitizeQuery, sanitizeBody, validationResult } = require('express-validator');
 
 module.exports = function (app) {
 
   app.route('/api/issues/:project?')
-    .get(function (req, res) {
+    .get([
+      query()
+        .custom(function(undefined, queryObj) {
+          if (Object.keys(queryObj.req.query).length === 0) {
+            return true;
+          }
+          const queryObject = queryObj.req.query;
+          for (let queryParam in queryObject) {
+            if (queryParam === 'created_on' || queryParam === 'updated_on') {
+              throw new Error('Cannot filter by created_on or updated_on fields');
+            }
+          }
+          for (let queryParam in queryObject) {
+            const Params = ['_id', 'issue_title', 'issue_text', 'created_by', 'assigned_to', 'open', 'status_text'];
+            if (Params.indexOf(queryParam) === -1) {
+              throw new Error('Invalid filter field: ' + queryParam);
+            } 
+          }
+          return true;
+        }),
+      query('_id')
+        .optional(),
+      sanitizeQuery('_id')
+        .escape(),
+      query('issue_title')
+        .optional(),
+      sanitizeQuery('issue_title')
+        .escape(),
+      query('issue_text')
+        .optional(),
+      sanitizeQuery('issue_text')
+        .escape(),
+      query('created_by')
+        .optional(),
+      sanitizeQuery('created_by')
+        .escape(),
+      query('assigned_to')
+        .optional(),
+      sanitizeQuery('assigned_to')
+        .escape(),
+      query('open')
+        .optional()
+        .custom(function(undefined, queryObj) {
+          if (queryObj.req.query.open === 'true') {
+            queryObj.req.query.open = true; 
+          }
+          if (queryObj.req.query.open === 'false') {
+            queryObj.req.query.open = false; 
+          }
+          return true;
+        }),
+      sanitizeQuery('open')
+        .escape(),
+      sanitizeQuery('status_text')
+        .escape(),
+      query()
+        .custom(function(undefined, queryObj) {
+          for (let field in queryObj.req.query) {
+            if (queryObj.req.query[field] === '') {
+              delete queryObj.req.query[field];
+            } 
+          }
+          return true;   
+        }),
+    ],
+    function (req, res) {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.json({err: errors.array()[0].msg});
+        return;
+      }
       MongoClient.connect(CONNECTION_STRING, function(err, db) {
         if (err) {
           console.log('An error occurred while connecting to MongoDB Atlas');
           res.json({err: 'An error occurred while connecting to MongoDB Atlas'});
           return;
         }
-        const data = db.db('issueTrackerDB').collection(req.params.project);
-        if (req.query.created_on !== undefined || req.query.updated_on !== undefined) {
-          res.send('Cannot filter by created_on or updated_on fields');
-          return;
-        }
-        if (req.query._id !== undefined && req.query._id.toString().split('').length !== 24) {
-          res.send('Invalid Query _id');
-          return;
-        }
-        if (req.query._id !== undefined && req.query._id.toString().split('').length === 24) {
+        if (req.query._id !== undefined) {
           req.query._id = ObjectId(req.query._id);
         }
-        if (req.query.open === 'true') {
-          req.query.open = true;
-        }
-        if (req.query.open === 'false') {
-          req.query.open = false;
-        }
-        data.find(req.query).toArray(function(err, result) {
+        const data_base = db.db('issueTrackerDB').collection(req.params.project);
+        data_base.find(Object.keys(req.query).length > 0 ? req.query : {}).toArray(function(err, data) {
           if (err) {
-          res.json({err: 'An error occurred while connecting to MongoDB Atlas'});
-          return;
+            res.json({err: 'An error occurred while connecting to MongoDB Atlas'});
+            return;
           }
-          res.json({result: result.slice(0)});
+          if (Object.keys(data).length === 0) {
+            res.json({err: 'Filter field value(s) not found'})
+            return;
+          }
+          res.json({result: data.slice(0)});
           db.close();
         });
       });
@@ -168,6 +228,17 @@ module.exports = function (app) {
         .isLength({max: 140}).withMessage('"Status Text" character limit of 140 has been exceeded'),
       sanitizeBody('status_text')
         .escape(),
+     body('open')
+        .optional()
+        .custom(function(undefined, bodyObj) {
+          if (bodyObj.req.body.open === 'true') {
+            bodyObj.req.body.open = true;
+          }
+          if (bodyObj.req.body.open === 'false') {
+            bodyObj.req.body.open = false;
+          }
+          return true;
+        })
     ], 
     function (req, res) {
       const errors = validationResult(req);
@@ -201,12 +272,6 @@ module.exports = function (app) {
              update_data[prop] = req.body[prop];
             }
           }
-          if (update_data.open === 'true') {
-            update_data.open = true;
-          }
-          if (update_data.open === 'false') {
-            update_data.open = false;
-          }
           update_data.updated_on = new Date(new Date(new Date().toDateString("UTC-7")).setHours(new Date().getHours(), new Date().getMinutes(), new Date().getSeconds(), new Date().getMilliseconds()));
           data_base.updateOne({_id: ObjectId(req.body.issue_id)}, {$set: update_data}, function(err) {
             if (err) {
@@ -214,7 +279,7 @@ module.exports = function (app) {
             }
           });
         }).then(function() {
-          data_base.find({}).toArray(function(err, result) {
+          data_base.find({_id: ObjectId(req.body.issue_id)}).toArray(function(err, result) {
             res.json({result: result.slice(0)});
             db.close();
           });

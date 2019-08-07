@@ -21,8 +21,9 @@ describe('<ApiTests /> component', () => {
     );
     expect(deleteIssue.textContent).toContain('Delete issue on apitest');
   });
+
   test('Page renders post data recieved from axios', async () => {
-      console.error = jest.fn(); /* eslint-disable-line */
+    console.error = jest.fn(); /* eslint-disable-line */
     const { container } = render(<ApiTests />);
     const submitButton = container.querySelector('[name="submitButton"]');
     fireEvent.click(submitButton);
