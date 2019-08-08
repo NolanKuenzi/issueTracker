@@ -9,7 +9,7 @@ const Issues = () => {
   const currentProject = window.location.pathname.replace(/\//g, '');
   const query = window.location.search;
   const url = query === '' ? `/api/issues/${currentProject}` : `/api/issues/${currentProject}${query}`;
-  
+
   const getFunc = async () => {
     try {
       const request = await axios.get(`https://shrouded-waters-89012.herokuapp.com${url}`);
@@ -59,6 +59,7 @@ const Issues = () => {
         return;
       }
       alert(`Issue: ${request.data.result[0].issue_title}(_id: ${request.data.result[0]._id}) has been closed`);
+      getFunc();
     } catch(error) {
       console.log(error);
       updateIssueData('An error occurred while connecting to MongoDB Atlas');

@@ -39,7 +39,15 @@ module.exports = function (app) {
           return true;
         }),
       query('_id')
-        .optional(),
+        .optional()
+        .custom(function(undefined, queryObj) {
+          try {
+            queryObj.req.query._id = ObjectId(queryObj.req.query._id);
+          } catch(error) {
+            throw new Error('Invalid _id');
+          }
+          return true;
+        }),
       sanitizeQuery('_id')
         .escape(),
       query('issue_title')
@@ -96,7 +104,7 @@ module.exports = function (app) {
           return;
         }
         if (req.query._id !== undefined) {
-          req.query._id = ObjectId(req.query._id);
+          req.query._id = ObjectId(req.query._id);;
         }
         const data_base = db.db('issueTrackerDB').collection(req.params.project);
         data_base.find(Object.keys(req.query).length > 0 ? req.query : {}).toArray(function(err, data) {
@@ -104,7 +112,7 @@ module.exports = function (app) {
             res.json({err: 'An error occurred while connecting to MongoDB Atlas'});
             return;
           }
-          if (Object.keys(data).length === 0) {
+          if (Object.keys(data).length === 0 && Object.keys(req.query).length !== 0) {
             res.json({err: 'Filter field value(s) not found'})
             return;
           }
