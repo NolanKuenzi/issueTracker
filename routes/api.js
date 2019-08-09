@@ -83,7 +83,6 @@ module.exports = function (app) {
         }),
     ],
     function (req, res) {
-      console.log(req.query);
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         res.json({err: errors.array()[0].msg});
@@ -110,9 +109,6 @@ module.exports = function (app) {
             res.json({err: 'An error occurred while connecting to MongoDB Atlas'});
             return;
           }
-          
-          console.log(req.query);
-          console.log(req);
           if (Object.keys(data).length === 0 && Object.keys(req.query).length !== 0) {
             res.json({err: 'Filter field value(s) not found'})
             return;
@@ -154,6 +150,13 @@ module.exports = function (app) {
         .isLength({max: 140}).withMessage('"Status Text" character limit of 140 has been exceeded'),
       sanitizeBody('status_text')
         .escape(),
+      body()
+        .custom(function(undefined, bodyObj) {
+          for (let key in bodyObj.req.body) {
+            bodyObj.req.body[key] = bodyObj.req.body[key].replace(/\s+/g, ' '); 
+          }
+          return true;
+        })
     ], 
     function (req, res) {
       const errors = validationResult(req);

@@ -43,7 +43,7 @@ const Issues = () => {
         return;
       }
       event.target.reset();
-      updateIssueData(request.data.result);
+      window.location = `https://shrouded-waters-89012.herokuapp.com/${currentProject}?`;
     } catch(error) {
       console.log(error);
       updateIssueData('An error occurred while connecting to MongoDB Atlas');
