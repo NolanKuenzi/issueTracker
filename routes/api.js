@@ -241,16 +241,14 @@ module.exports = function (app) {
       sanitizeBody('status_text')
         .escape(),
      body('open')
-        .optional()
+        .optional(),
+      body()
         .custom(function(undefined, bodyObj) {
-          if (bodyObj.req.body.open === 'true') {
-            bodyObj.req.body.open = true;
-          }
-          if (bodyObj.req.body.open === 'false') {
-            bodyObj.req.body.open = false;
+          for (let key in bodyObj.req.body) {
+            bodyObj.req.body[key] = bodyObj.req.body[key].replace(/\s+/g, ' '); 
           }
           return true;
-        })
+        }),
     ], 
     function (req, res) {
       const errors = validationResult(req);
@@ -283,6 +281,12 @@ module.exports = function (app) {
             if (req.body[prop] !== '' && prop !== 'issue_id') {
              update_data[prop] = req.body[prop];
             }
+          }
+          if (update_data.open === 'true') {
+            update_data.open = true; 
+          }
+          if (update_data.open === 'false') {
+            update_data.open = false; 
           }
           update_data.updated_on = new Date(new Date(new Date().toDateString("UTC-7")).setHours(new Date().getHours(), new Date().getMinutes(), new Date().getSeconds(), new Date().getMilliseconds()));
           data_base.updateOne({_id: ObjectId(req.body.issue_id)}, {$set: update_data}, function(err) {
