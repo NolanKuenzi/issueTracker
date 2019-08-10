@@ -271,17 +271,16 @@ module.exports = function (app) {
         get_data.then(function() {
           const update_data = {};
           for (let prop in req.body) {
-            if (req.body[prop] !== '' && prop !== 'issue_id') {
-             update_data[prop] = req.body[prop];
-             update_data[prop] = update_data[prop].replace(/\s+/g, ' '); 
+            if (req.body[prop] !== '' && prop !== 'issue_id' && req.body[prop] !== true && req.body[prop] !== false) {
+              update_data[prop] = req.body[prop];
+              update_data[prop] = update_data[prop].replace(/\s+/g, ' '); 
             }
           }
-         if (update_data.open === 'true') {
-            update_data.open = true; 
-            
+          if (update_data.open === 'true') {
+            update_data.open = true;
           }
           if (update_data.open === 'false') {
-            update_data.open = false; 
+            update_data.open = false;
           }
           update_data.updated_on = new Date(new Date(new Date().toDateString("UTC-7")).setHours(new Date().getHours(), new Date().getMinutes(), new Date().getSeconds(), new Date().getMilliseconds()));
           data_base.updateOne({_id: ObjectId(req.body.issue_id)}, {$set: update_data}, function(err) {
