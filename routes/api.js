@@ -240,15 +240,8 @@ module.exports = function (app) {
         .isLength({max: 140}).withMessage('"Status Text" character limit of 140 has been exceeded'),
       sanitizeBody('status_text')
         .escape(),
-     body('open')
+      body('open')
         .optional(),
-      body()
-        .custom(function(undefined, bodyObj) {
-          for (let key in bodyObj.req.body) {
-            bodyObj.req.body[key] = bodyObj.req.body[key].replace(/\s+/g, ' '); 
-          }
-          return true;
-        }),
     ], 
     function (req, res) {
       const errors = validationResult(req);
@@ -280,10 +273,12 @@ module.exports = function (app) {
           for (let prop in req.body) {
             if (req.body[prop] !== '' && prop !== 'issue_id') {
              update_data[prop] = req.body[prop];
+             update_data[prop] = update_data[prop].replace(/\s+/g, ' '); 
             }
           }
-          if (update_data.open === 'true') {
+         if (update_data.open === 'true') {
             update_data.open = true; 
+            
           }
           if (update_data.open === 'false') {
             update_data.open = false; 
