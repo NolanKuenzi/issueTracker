@@ -113,6 +113,7 @@ module.exports = function (app) {
             res.json({err: 'Filter field value(s) not found'})
             return;
           }
+          console.log(data);
           res.json({result: data.slice(0)});
           db.close();
         });
@@ -271,11 +272,15 @@ module.exports = function (app) {
         get_data.then(function() {
           const update_data = {};
           for (let prop in req.body) {
-            if (req.body[prop] !== '' && prop !== 'issue_id' && req.body[prop] !== true && req.body[prop] !== false) {
+            if (req.body[prop] !== '' && prop !== 'issue_id') {
               update_data[prop] = req.body[prop];
-              update_data[prop] = update_data[prop].replace(/\s+/g, ' '); 
             }
           }
+          for (let prop in update_data) {
+            if (update_data[prop] !== true && update_data[prop] !== false) {
+              update_data[prop] = update_data[prop].replace(/\s+/g, ' ');
+            }
+          } 
           if (update_data.open === 'true') {
             update_data.open = true;
           }
