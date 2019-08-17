@@ -15,16 +15,17 @@ const ApiTests = () => {
           'https://shrouded-waters-89012.herokuapp.com/api/issues/apitest',
           input
         );
-        if (request.data.err !== undefined) {
-          setData(request.data.err);
-          return;
-        }
         if (request.data.result !== undefined) {
           setData(JSON.stringify([request.data.result[request.data.result.length - 1]]));
         }
       } catch (error) {
+        if (error.response !== undefined) {
+          if (error.response.data.err !== undefined) {
+            setData(error.response.data.err);
+            return;
+          }
+        }
         setData('An error occurred while connecting to MongoDB Atlas');
-        return;
       }
     }
     if (formType === 'updateForm') {
@@ -33,16 +34,17 @@ const ApiTests = () => {
           'https://shrouded-waters-89012.herokuapp.com/api/issues/apitest',
           input
         );
-        if (request.data.err !== undefined) {
-          setData(request.data.err);
-          return;
-        }
         if (request.data.result !== undefined) {
           setData(`Updated Issue: ${JSON.stringify(request.data.result[0])}`);
         }
       } catch (error) {
+        if (error.response !== undefined) {
+          if (error.response.data.err !== undefined) {
+            setData(error.response.data.err);
+            return;
+          }
+        }
         setData('An error occurred while connecting to MongoDB Atlas');
-        return;
       }
     }
     if (formType === 'deleteForm') {
@@ -53,14 +55,16 @@ const ApiTests = () => {
             data: { issue_id: input.issue_id },
           }
         );
-        if (request.data.err !== undefined) {
-          setData(request.data.err);
-          return;
-        }
         if (request.data.result !== undefined) {
           setData(request.data.result);
         }
       } catch (error) {
+        if (error.response !== undefined) {
+          if (error.response.data.err !== undefined) {
+            setData(error.response.data.err);
+            return;
+          }
+        }
         setData('An error occurred while connecting to MongoDB Atlas');
       }
     }

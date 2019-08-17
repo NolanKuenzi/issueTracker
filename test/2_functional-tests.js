@@ -44,6 +44,7 @@ describe('Functional Tests', function() {
         status_text: 'In Progress'
       })
       .end(function(err, res) {
+        assert.equal(res.status, 200);
         assert.equal(res.body.result[0].issue_title, 'testObject1');
         assert.equal(res.body.result[0].issue_text, 'First MongoDB test object');
         assert.equal(res.body.result[0].created_by, 'Testing Team');
@@ -81,6 +82,7 @@ describe('Functional Tests', function() {
         status_text: 'Incomplete'
       })
       .end(function(err, res){
+        assert.equal(res.status, 400);
         assert.equal(res.body.err, 'Please fill out all required fields')
         done();
       });
@@ -94,6 +96,7 @@ describe('Functional Tests', function() {
       .query({})
       .end(function(err, res) {
         assert.isArray(res.body.result);
+        assert.equal(res.status, 200);
         assert.property(res.body.result[0], 'issue_title');
         assert.property(res.body.result[0], 'issue_text');
         assert.property(res.body.result[0], 'created_by');
@@ -168,6 +171,7 @@ describe('Functional Tests', function() {
       .put('/api/issues/test')
       .send({})
       .end(function(err, res) {
+      assert.equal(res.status, 400);
       assert.equal(res.body.err, 'Please fill out all required fields');
       done();
       });
@@ -181,6 +185,7 @@ describe('Functional Tests', function() {
         .put('/api/issues/test')
         .send({issue_id: res.body.result[0]._id, issue_title: 'testObject1_updated'})
         .end(function(err, res) {
+          assert.equal(res.status, 200);
           assert.equal(res.body.result[0].issue_title, 'testObject1_updated');
           assert.equal(res.body.result[0].issue_text, 'First MongoDB test object');
           assert.equal(res.body.result[0].created_by, 'Testing Team');
@@ -199,6 +204,7 @@ describe('Functional Tests', function() {
         .put('/api/issues/test')
         .send({issue_id: res.body.result[1]._id, issue_title: 'testObject2_updated', issue_text: 'Second MongoDB test object has been updated'})
         .end(function(err, res) {
+          assert.equal(res.status, 200);
           assert.equal(res.body.result[0].issue_title, 'testObject2_updated');
           assert.equal(res.body.result[0].issue_text, 'Second MongoDB test object has been updated');
           assert.equal(res.body.result[0].created_by, 'Testing Team');
@@ -216,6 +222,7 @@ describe('Functional Tests', function() {
       .delete('/api/issues/test')
       .send({issue_id: ''})
       .end(function(err, res) {
+        assert.equal(res.status, 400); 
         assert.equal(res.body.err, 'Please fill out all required fields')
         done();
       });
@@ -230,7 +237,8 @@ describe('Functional Tests', function() {
             .delete('/api/issues/test')
             .send({issue_id: deleteObj._id})
             .end(function(err, res) {
-            assert.equal(res.body.result, 'Issue: ' + deleteObj.issue_title + '(_id: ' + deleteObj._id + ')' + ' has been deleted');
+              assert.equal(res.status, 200);            
+              assert.equal(res.body.result, 'Issue: ' + deleteObj.issue_title + '(_id: ' + deleteObj._id + ')' + ' has been deleted');
             done();
           });
         });

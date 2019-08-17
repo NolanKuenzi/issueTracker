@@ -2,24 +2,25 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import regeneratorRuntime, { async } from 'regenerator-runtime';
-
+ 
 const Issues = () => {
   const [defaultData, setDefaultData] = useState(false);
   const [issueData, updateIssueData] = useState(null);
   const currentProject = window.location.pathname.replace(/\//g, '');
   const query = window.location.search;
   const url = query === '' ? `/api/issues/${currentProject}` : `/api/issues/${currentProject}${query}`;
- 
+
   const getFunc = async () => {
     try {
       const request = await axios.get(`https://shrouded-waters-89012.herokuapp.com${url}`);
-      if (request.data.err !== undefined) {
-        updateIssueData(request.data.err);
-        return;
-      }
       updateIssueData(request.data.result);
     } catch (error) {
-      console.log(error);
+      if (error.response !== undefined) {
+        if (error.response.data.err !== undefined) {
+          updateIssueData(error.response.data.err);
+          return;
+        }
+      }
       updateIssueData('An error occurred while connecting to MongoDB Atlas');
     }
   };
@@ -38,10 +39,6 @@ const Issues = () => {
     };
     try {
       const request = await axios.post(`https://shrouded-waters-89012.herokuapp.com${url}`, body);
-      if (request.data.err !== undefined) {
-        alert(request.data.err);
-        return;
-      }
       event.target.reset();
       if (query === '') {
         updateIssueData(request.data.result);
@@ -49,7 +46,12 @@ const Issues = () => {
         window.location = `https://shrouded-waters-89012.herokuapp.com/${currentProject}?`;
       }
     } catch(error) {
-      console.log(error);
+      if (error.response !== undefined) {
+        if (error.response.data.err !== undefined) {
+          updateIssueData(error.response.data.err);
+          return;
+        }
+      }
       updateIssueData('An error occurred while connecting to MongoDB Atlas');
     }
   };
@@ -58,14 +60,15 @@ const Issues = () => {
     event.persist();
     try {
       const request = await axios.put(`https://shrouded-waters-89012.herokuapp.com${url}`, {issue_id: event.target.id, updated_on: new Date(), open: false});
-      if (request.data.err !== undefined) {
-        updateIssueData(request.data.err);
-        return;
-      }
       alert(`Issue: ${request.data.result[0].issue_title}(_id: ${request.data.result[0]._id}) has been closed`);
       setDefaultData(false);
     } catch(error) {
-      console.log(error);
+      if (error.response !== undefined) {
+        if (error.response.data.err !== undefined) {
+          updateIssueData(error.response.data.err);
+          return;
+        }
+      }
       updateIssueData('An error occurred while connecting to MongoDB Atlas');
     }
   };
@@ -82,14 +85,15 @@ const Issues = () => {
       const request = await axios.delete(`https://shrouded-waters-89012.herokuapp.com${url}`, { 
         data: { issue_id: event.target.id },
       });
-      if (request.data.err !== undefined) {
-        updateIssueData(request.data.err);
-        return;
-      }
       alert(request.data.result);
       setDefaultData(false);
     } catch(error) {
-      console.log(error);
+      if (error.response !== undefined) {
+        if (error.response.data.err !== undefined) {
+          updateIssueData(error.response.data.err);
+          return;
+        }
+      }
       updateIssueData('An error occurred while connecting to MongoDB Atlas');
     }
   }

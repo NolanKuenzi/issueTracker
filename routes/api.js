@@ -85,13 +85,12 @@ module.exports = function (app) {
     function (req, res) {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        res.json({err: errors.array()[0].msg});
+        res.status(400).json({err: errors.array()[0].msg});
         return;
       }
       MongoClient.connect(CONNECTION_STRING, function(err, db) {
         if (err) {
-          console.log('An error occurred while connecting to MongoDB Atlas');
-          res.json({err: 'An error occurred while connecting to MongoDB Atlas'});
+          res.status(500).json({err: 'An error occurred while connecting to MongoDB Atlas'});
           return;
         }
         if (req.query._id !== undefined) {
@@ -106,20 +105,19 @@ module.exports = function (app) {
         const data_base = db.db('issueTrackerDB').collection(req.params.project);
         data_base.find(Object.keys(req.query).length > 0 ? req.query : {}).toArray(function(err, data) {
           if (err) {
-            res.json({err: 'An error occurred while connecting to MongoDB Atlas'});
+            res.status(500).json({err: 'An error occurred while connecting to MongoDB Atlas'});
             return;
           }
           if (Object.keys(data).length === 0 && Object.keys(req.query).length !== 0) {
-            res.json({err: 'Filter field value(s) not found'})
+            res.status(404).json({err: 'Filter field value(s) not found'})
             return;
           }
-          console.log(data);
-          res.json({result: data.slice(0)});
+          res.status(200).json({result: data.slice(0)});
           db.close();
         });
       });
     })
-
+    
     .post([
       body('issue_title')
         .not().isEmpty().withMessage('Please fill out all required fields')
@@ -162,13 +160,12 @@ module.exports = function (app) {
     function (req, res) {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        res.json({err: errors.array()[0].msg});
+        res.status(400).json({err: errors.array()[0].msg});
         return;
       }
       MongoClient.connect(CONNECTION_STRING, function(err, db) {
         if (err) {
-          console.log('An error occurred while connecting to MongoDB Atlas');
-          res.json({err: 'An error occurred while connecting to MongoDB Atlas'});
+          res.status(500).json({err: 'An error occurred while connecting to MongoDB Atlas'});
           return;
         }
         const data_base = db.db('issueTrackerDB').collection(req.params.project);
@@ -186,12 +183,11 @@ module.exports = function (app) {
             if (err) {
               reject();
             }
-            res.json({result: result.slice(0)});
+            res.status(200).json({result: result.slice(0)});
             db.close();
           });
-        }).catch(function() {
-            console.log('An error occurred while connecting to MongoDB Atlas');
-            res.json({err: 'An error occurred while connecting to MongoDB Atlas'});
+        }).catch(function(error) {
+            res.status(500).json({err: 'An error occurred while connecting to MongoDB Atlas'});
             db.close();
           });
       }); 
@@ -247,13 +243,12 @@ module.exports = function (app) {
     function (req, res) {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        res.json({err: errors.array()[0].msg});
+        res.status(400).json({err: errors.array()[0].msg});
         return;
       }
       MongoClient.connect(CONNECTION_STRING, function(err, db) {
         if (err) {
-          console.log('An error occurred while connecting to MongoDB Atlas');
-          res.json({err: 'An error occurred while connecting to MongoDB Atlas'});
+          res.status(500).json({err: 'An error occurred while connecting to MongoDB Atlas'});
           return;
         }
         const data_base = db.db('issueTrackerDB').collection(req.params.project);
@@ -261,7 +256,8 @@ module.exports = function (app) {
           data_base.find({}).toArray(function(err, result) {
           const find_issue = result.filter(item => ObjectId(item._id).toString() === req.body.issue_id);
           if (find_issue.length === 0) {
-            reject('Issue not found');
+            res.status(404).json({err: 'Issue not found'});
+            return;
           }
           if (err) {
             reject('An error occurred while connecting to MongoDB Atlas');
@@ -295,12 +291,11 @@ module.exports = function (app) {
           });
         }).then(function() {
           data_base.find({_id: ObjectId(req.body.issue_id)}).toArray(function(err, result) {
-            res.json({result: result.slice(0)});
+            res.status(200).json({result: result.slice(0)});
             db.close();
           });
-        }).catch(function(input) {
-          console.log(input);
-          res.json({err: input});
+        }).catch(function(error) {
+          res.status(500).json({err: error});
           db.close();
         });
       });
@@ -317,13 +312,12 @@ module.exports = function (app) {
     function (req, res) {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        res.json({err: errors.array()[0].msg});
+        res.status(400).json({err: errors.array()[0].msg});
         return;
       }
       MongoClient.connect(CONNECTION_STRING, function(err, db) {
         if (err) {
-          console.log('An error occurred while connecting to MongoDB Atlas');
-          res.json({err: 'An error occurred while connecting to MongoDB Atlas'});
+          res.status(500).json({err: 'An error occurred while connecting to MongoDB Atlas'});
           return;
         }
         const data_base = db.db('issueTrackerDB').collection(req.params.project);
@@ -343,18 +337,16 @@ module.exports = function (app) {
         delete_issue.then(function() {
           data_base.deleteOne({_id: ObjectId(req.body.issue_id)}, function(err, result) {
             if (err) {
-              console.log(err);
-              res.json({err: 'An error occurred while connecting to MongoDB Atlas'});
+              res.status(500).json({err: 'An error occurred while connecting to MongoDB Atlas'});
               return;
             }
-            res.json({result: 'Issue: ' + find_issue[0].issue_title + '(_id: ' + req.body.issue_id + ')' + ' has been deleted'});
+            res.status(200).json({result: 'Issue: ' + find_issue[0].issue_title + '(_id: ' + req.body.issue_id + ')' + ' has been deleted'});
             db.close();
           })
-        }).catch(function(err) {
-          console.log(err);
-          res.json({err: err});
+        }).catch(function(error) {
+          res.status(500).json({err: error});
           db.close();
         }); 
       });
     });  
-};
+}; 
