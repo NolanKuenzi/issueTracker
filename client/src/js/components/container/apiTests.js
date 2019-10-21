@@ -1,12 +1,27 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import regeneratorRuntime, { async } from 'regenerator-runtime';
 import UserStories from '../presentational/userStories';
 
 const ApiTests = () => {
   const [data, setData] = useState(null);
-  const [checkBox, setCheckBox] = useState(true);
   const [usrStoriesIcon, setUsrStoriesIcon] = useState(false);
+
+  const [submitTitle, setSubmitTitle] = useState('');
+  const [submitText, setSubmitText] = useState('');
+  const [submitCreated, setSubmitCreated] = useState('');
+  const [submitAssigned, setSubmitAssigned] = useState('');
+  const [submitStatus, setSubmitStatus] = useState('');
+
+  const [updateId, setUpdateId] = useState('');
+  const [updateTitle, setUpdateTitle] = useState('');
+  const [updateText, setUpdateText] = useState('');
+  const [updateCreated, setUpdateCreated] = useState('');
+  const [updateAssigned, setUpdateAssigned] = useState('');
+  const [updateStatus, setUpdateStatus] = useState('');
+  const [checkBox, setCheckBox] = useState(true);
+
+  const [deleteIssue, setDeleteIssue] = useState('');
 
   const issueReq = async (input, formType) => {
     if (formType === 'submitForm') {
@@ -15,9 +30,12 @@ const ApiTests = () => {
           'https://shrouded-waters-89012.herokuapp.com/api/issues/apitest',
           input
         );
-        if (request.data.result !== undefined) {
-          setData(JSON.stringify([request.data.result[request.data.result.length - 1]]));
-        }
+        setData(JSON.stringify([request.data.result[request.data.result.length - 1]]));
+        setSubmitTitle('');
+        setSubmitText('');
+        setSubmitCreated('');
+        setSubmitAssigned('');
+        setSubmitStatus('');
       } catch (error) {
         if (error.response !== undefined) {
           if (error.response.data.err !== undefined) {
@@ -25,7 +43,7 @@ const ApiTests = () => {
             return;
           }
         }
-        setData('An error occurred while connecting to MongoDB Atlas');
+        setData('Error: Network Error');
       }
     }
     if (formType === 'updateForm') {
@@ -44,7 +62,7 @@ const ApiTests = () => {
             return;
           }
         }
-        setData('An error occurred while connecting to MongoDB Atlas');
+        setData('Error: Network Error');
       }
     }
     if (formType === 'deleteForm') {
@@ -65,7 +83,7 @@ const ApiTests = () => {
             return;
           }
         }
-        setData('An error occurred while connecting to MongoDB Atlas');
+        setData('Error: Network Error');
       }
     }
     const clearForm = document.getElementById(formType);
@@ -74,35 +92,32 @@ const ApiTests = () => {
 
   const submitFunc = event => {
     event.preventDefault();
-    const submitInputs = document.getElementsByClassName('submitInputs');
     const body = {
-      issue_title: submitInputs[0].value,
-      issue_text: submitInputs[1].value,
-      created_by: submitInputs[2].value,
-      assigned_to: submitInputs[3].value,
-      status_text: submitInputs[4].value,
+      issue_title: submitTitle,
+      issue_text: submitText,
+      created_by: submitCreated,
+      assigned_to: submitAssigned,
+      status_text: submitStatus,
     };
     issueReq(body, 'submitForm');
   };
   const updateFunc = event => {
     event.preventDefault();
-    const updateInputs = document.getElementsByClassName('updateInputs');
     const body = {
-      issue_id: updateInputs[0].value,
-      issue_title: updateInputs[1].value,
-      issue_text: updateInputs[2].value,
-      created_by: updateInputs[3].value,
-      assigned_to: updateInputs[4].value,
-      status_text: updateInputs[5].value,
-      open: updateInputs[6].value,
+      issue_id: updateId,
+      issue_title: updateTitle,
+      issue_text: updateText,
+      created_by: updateCreated,
+      assigned_to: updateAssigned,
+      status_text: updateStatus,
+      open: checkBox,
     };
     issueReq(body, 'updateForm');
   };
   const deleteFunc = event => {
     event.preventDefault();
-    const delInput = document.getElementById('deleteInput');
     const body = {
-      issue_id: delInput.value,
+      issue_id: deleteIssue,
     };
     issueReq(body, 'deleteForm');
   };
@@ -124,64 +139,87 @@ const ApiTests = () => {
   return (
     <div id="apiTestsId">
       <h2>API Tests:</h2>
-      <div data-testid="submitIssue" className="formContainer">
+      <div className="formContainer">
         <h3>
           Submit issue on <em>apitest</em>
         </h3>
         <form id="submitForm" onSubmit={event => submitFunc(event)}>
-          <input className="submitInputs" type="text" placeholder="*Title" name="issue_title" />
-          <textarea className="submitInputs" placeholder="*Text" name="issue_text" />
-          <input className="submitInputs" type="text" placeholder="*Created by" name="created_by" />
           <input
-            className="submitInputs"
             type="text"
-            placeholder="(opt)Assigned to"
-            name="assigned_to"
+            placeholder="*Title"
+            value={submitTitle}
+            onChange={e => setSubmitTitle(e.target.value)}
+          />
+          <textarea
+            placeholder="*Text"
+            value={submitText}
+            onChange={e => setSubmitText(e.target.value)}
           />
           <input
-            className="submitInputs"
+            type="text"
+            placeholder="*Created by"
+            value={submitCreated}
+            onChange={e => setSubmitCreated(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="(opt)Assigned to"
+            value={submitAssigned}
+            onChange={e => setSubmitAssigned(e.target.value)}
+          />
+          <input
             type="text"
             placeholder="(opt)Status text"
-            name="status_text"
+            value={submitStatus}
+            onChange={e => setSubmitStatus(e.target.value)}
           />
           <button type="submit" name="submitButton">
             Submit Issue
           </button>
         </form>
       </div>
-      <div data-testid="updateIssue" className="formContainer">
+      <div className="formContainer">
         <h3>
           Update issue on <em>apitest</em> (Change any or all to update issue on the _id supplied)
         </h3>
         <form id="updateForm" onSubmit={event => updateFunc(event)}>
-          <input className="updateInputs" type="text" placeholder="*_id" name="issue_id" />
-          <input className="updateInputs" type="text" placeholder="(opt)Title" name="issue_title" />
+          <input
+            type="text"
+            placeholder="*_id"
+            value={updateId}
+            onChange={e => setUpdateId(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="(opt)Title"
+            value={updateTitle}
+            onChange={e => setUpdateTitle(e.target.value)}
+          />
           <textarea
-            className="updateInputs"
             type="text"
             placeholder="(opt)Text"
-            name="issue_text"
+            value={updateText}
+            onChange={e => setUpdateText(e.target.value)}
           />
           <input
-            className="updateInputs"
             type="text"
             placeholder="(opt)Created by"
-            name="created_by"
+            value={updateCreated}
+            onChange={e => setUpdateCreated(e.target.value)}
           />
           <input
-            className="updateInputs"
             type="text"
             placeholder="(opt)Assigned to"
-            name="assigned_to"
+            value={updateAssigned}
+            onChange={e => setUpdateAssigned(e.target.value)}
           />
           <input
-            className="updateInputs"
             type="text"
             placeholder="(opt)Status text"
-            name="status_text"
+            value={updateStatus}
+            onChange={e => setUpdateStatus(e.target.value)}
           />
           <input
-            className="updateInputs"
             type="checkbox"
             id="checkBox"
             name="check_box"
@@ -194,12 +232,17 @@ const ApiTests = () => {
           </button>
         </form>
       </div>
-      <div data-testid="deleteIssue" className="formContainer">
+      <div className="formContainer">
         <h3>
           Delete issue on <em>apitest</em>
         </h3>
         <form id="deleteForm" onSubmit={event => deleteFunc(event)}>
-          <input type="text" id="deleteInput" name="issue_id" placeholder="_id" />
+          <input
+            type="text"
+            placeholder="_id"
+            value={deleteIssue}
+            onChange={e => setDeleteIssue(e.target.value)}
+          />
           <button type="submit" name="deleteButton">
             Delete Issue
           </button>

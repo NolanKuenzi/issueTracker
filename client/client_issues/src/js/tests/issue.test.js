@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup, wait, fireEvent } from '@testing-library/react';
+import { render, cleanup, fireEvent, act, waitForDomChange, wait } from '@testing-library/react';
 import regeneratorRuntime, { async } from 'regenerator-runtime';
 import Issues from '../components/container/issues';
 
@@ -8,10 +8,10 @@ afterEach(cleanup);
 
 describe('<Issues /> component', () => {
   test('It displays correct axios.get data', async () => {
-    console.error = jest.fn(); /* eslint-disable-line */
-    const { getByTestId } = render(<Issues />);
-    await wait(() => {
-      const ulData = getByTestId('ulData');
+    const { container } = render(<Issues />);
+    await act(async () => {
+      await waitForDomChange();
+      const ulData = container.querySelector('[id="ulData"]');
       expect(ulData.textContent).toContain('Formatting err');
       expect(ulData.textContent).toContain('Mongoose Schema incorrectly written');
       expect(ulData.textContent).toContain('Database Err');
@@ -19,12 +19,13 @@ describe('<Issues /> component', () => {
     });
   });
   test('It displays correct axios.post data', async () => {
-    console.error = jest.fn(); /* eslint-disable-line */
-    const { getByTestId } = render(<Issues />);
-    const submitForm = getByTestId('submitForm');
-    fireEvent.submit(submitForm);
-    await wait(() => {
-      const ulData = getByTestId('ulData');
+    const { container } = render(<Issues />);
+    await act(async () => {
+      await waitForDomChange();
+      const submitForm = container.querySelector('[id="submitForm"]');
+      fireEvent.submit(submitForm);
+      await waitForDomChange();
+      const ulData = container.querySelector('[id="ulData"]');
       expect(ulData.textContent).toContain('Website Menu Data');
       expect(ulData.textContent).toContain('Website Menu data is out of date');
       expect(ulData.textContent).toContain('Tech Support');
@@ -32,18 +33,18 @@ describe('<Issues /> component', () => {
     });
   });
   test('It dispalys correct axios.delete data', async () => {
-    const { getByTestId } = render(<Issues />);
-    await wait(async () => {
-      const ulData = getByTestId('ulData');
+    const { container, getByTestId } = render(<Issues />);
+    await act(async () => {
+      await waitForDomChange();
+      const ulData = container.querySelector('[id="ulData"]');
       expect(ulData.textContent).toContain('Formatting err');
       expect(ulData.textContent).toContain('Mongoose Schema incorrectly written');
       expect(ulData.textContent).toContain('Database Err');
       const deleteSpan0 = getByTestId('deleteSpan0');
       fireEvent.click(deleteSpan0);
-      await wait(() => {
-        expect(ulData.textContent).not.toContain('Formatting err');
-        expect(ulData.textContent).not.toContain('Mongoose Schema incorrectly written');
-      });
+      await waitForDomChange();
+      expect(ulData.textContent).not.toContain('Formatting err');
+      expect(ulData.textContent).not.toContain('Mongoose Schema incorrectly written');
     });
   });
 });

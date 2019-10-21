@@ -81,20 +81,16 @@ module.exports = function (app) {
           }
           return true;   
         }),
-    ],
+    ], 
     function (req, res) {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         res.status(400).json({err: errors.array()[0].msg});
         return;
       }
-      MongoClient.connect(CONNECTION_STRING, function(err, db) {
-        if (err) {
-          res.status(500).json({err: 'An error occurred while connecting to MongoDB Atlas'});
-          return;
-        }
+      MongoClient.connect(CONNECTION_STRING).then(function(db) {
         if (req.query._id !== undefined) {
-          req.query._id = ObjectId(req.query._id);;
+          req.query._id = ObjectId(req.query._id);
         }
         if (req.query.open === 'true') {
           req.query.open = true; 
@@ -103,9 +99,9 @@ module.exports = function (app) {
           req.query.open = false; 
         }
         const data_base = db.db('issueTrackerDB').collection(req.params.project);
-        data_base.find(Object.keys(req.query).length > 0 ? req.query : {}).toArray(function(err, data) {
-          if (err) {
-            res.status(500).json({err: 'An error occurred while connecting to MongoDB Atlas'});
+        data_base.find(Object.keys(req.query).length > 0 ? req.query : {}).toArray(function(error, data) {
+          if (error) {
+            res.status(500).json({err: error});
             return;
           }
           if (Object.keys(data).length === 0 && Object.keys(req.query).length !== 0) {
@@ -114,8 +110,10 @@ module.exports = function (app) {
           }
           res.status(200).json({result: data.slice(0)});
           db.close();
-        });
-      });
+        })
+      }).catch(function(error) {
+        res.status(500).json({err: error});
+      })
     })
     
     .post([
@@ -163,34 +161,24 @@ module.exports = function (app) {
         res.status(400).json({err: errors.array()[0].msg});
         return;
       }
-      MongoClient.connect(CONNECTION_STRING, function(err, db) {
-        if (err) {
-          res.status(500).json({err: 'An error occurred while connecting to MongoDB Atlas'});
-          return;
-        }
-        const data_base = db.db('issueTrackerDB').collection(req.params.project);
-        const add_issue = new Promise(function(resolve, reject) {
+      MongoClient.connect(CONNECTION_STRING).then(function(db) {
         const issue_obj = {issue_title: req.body.issue_title, issue_text: req.body.issue_text, created_on: new Date(new Date(new Date().toDateString("UTC-7")).setHours(new Date().getHours(), new Date().getMinutes(), new Date().getSeconds(), new Date().getMilliseconds())), updated_on: new Date(new Date(new Date().toDateString("UTC-7")).setHours(new Date().getHours(), new Date().getMinutes(), new Date().getSeconds(), new Date().getMilliseconds())), created_by: req.body.created_by, assigned_to: req.body.assigned_to, open: true, status_text: req.body.status_text};
-          data_base.insertOne(issue_obj, function(err) {
-            if (err) {
-              reject();
-            }
-          });
-          resolve();
-        });
-        add_issue.then(function() {
-          data_base.find({}).toArray(function(err, result) {
-            if (err) {
-              reject();
+        const data_base = db.db('issueTrackerDB').collection(req.params.project);
+        data_base.insertOne(issue_obj).then(function(dta_base) {
+          data_base.find({}).toArray(function(error, result) {
+            if (error) {
+              res.status(500).json({err: error});
+              return;
             }
             res.status(200).json({result: result.slice(0)});
             db.close();
-          });
+          })
         }).catch(function(error) {
-            res.status(500).json({err: 'An error occurred while connecting to MongoDB Atlas'});
-            db.close();
-          });
-      }); 
+          res.status(500).json({err: error});
+        })
+      }).catch(function(error) {
+        res.status(500).json({err: error});
+      })
     })
     
     .put([
@@ -246,27 +234,19 @@ module.exports = function (app) {
         res.status(400).json({err: errors.array()[0].msg});
         return;
       }
-      MongoClient.connect(CONNECTION_STRING, function(err, db) {
-        if (err) {
-          res.status(500).json({err: 'An error occurred while connecting to MongoDB Atlas'});
-          return;
-        }
+      MongoClient.connect(CONNECTION_STRING).then(function(db) {
         const data_base = db.db('issueTrackerDB').collection(req.params.project);
-        const get_data = new Promise(function(resolve, reject) {
-          data_base.find({}).toArray(function(err, result) {
-          const find_issue = result.filter(item => ObjectId(item._id).toString() === req.body.issue_id);
+        data_base.find({}).toArray(function(error, issue) {
+          if (error) {
+            res.status(500).json({err: error});
+            return;
+          }
+          const find_issue = issue.filter(item => ObjectId(item._id).toString() === req.body.issue_id);
           if (find_issue.length === 0) {
             res.status(404).json({err: 'Issue not found'});
             return;
           }
-          if (err) {
-            reject('An error occurred while connecting to MongoDB Atlas');
-          }
-          resolve();
-          });
-        });
-        get_data.then(function() {
-          const update_data = {};
+        const update_data = {};
           for (let prop in req.body) {
             if (req.body[prop] !== '' && prop !== 'issue_id') {
               update_data[prop] = req.body[prop];
@@ -276,7 +256,7 @@ module.exports = function (app) {
             if (update_data[prop] !== true && update_data[prop] !== false) {
               update_data[prop] = update_data[prop].replace(/\s+/g, ' ');
             }
-          } 
+          }
           if (update_data.open === 'true') {
             update_data.open = true;
           }
@@ -284,21 +264,22 @@ module.exports = function (app) {
             update_data.open = false;
           }
           update_data.updated_on = new Date(new Date(new Date().toDateString("UTC-7")).setHours(new Date().getHours(), new Date().getMinutes(), new Date().getSeconds(), new Date().getMilliseconds()));
-          data_base.updateOne({_id: ObjectId(req.body.issue_id)}, {$set: update_data}, function(err) {
-            if (err) {
-              reject('An error occurred while connecting to MongoDB Atlas');
-            }
-          });
-        }).then(function() {
-          data_base.find({_id: ObjectId(req.body.issue_id)}).toArray(function(err, result) {
-            res.status(200).json({result: result.slice(0)});
-            db.close();
-          });
-        }).catch(function(error) {
-          res.status(500).json({err: error});
-          db.close();
-        });
-      });
+          data_base.updateOne({_id: ObjectId(req.body.issue_id)}, {$set: update_data}).then(function(dataBase) {
+            data_base.find({_id: ObjectId(req.body.issue_id)}).toArray(function(error, result) {
+              if (error) {
+                res.status(500).json({err: error});
+                return;
+              }
+              res.status(200).json({result: result.slice(0)});
+              db.close();
+            });
+          }).catch(function(error) {
+            res.status(500).json({err: error});
+          })
+        })
+      }).catch(function(error) {
+        res.status(500).json({err: error});
+      })
     })
     
     .delete([
@@ -315,38 +296,29 @@ module.exports = function (app) {
         res.status(400).json({err: errors.array()[0].msg});
         return;
       }
-      MongoClient.connect(CONNECTION_STRING, function(err, db) {
-        if (err) {
-          res.status(500).json({err: 'An error occurred while connecting to MongoDB Atlas'});
-          return;
-        }
+      MongoClient.connect(CONNECTION_STRING).then(function(db) {
         const data_base = db.db('issueTrackerDB').collection(req.params.project);
-        let find_issue;
-        const delete_issue = new Promise(function(resolve, reject) {
-          data_base.find({}).toArray(function(err, result) {
-            find_issue = result.filter(item => ObjectId(item._id).toString() === req.body.issue_id);
-            if (find_issue.length === 0) {
-              reject('Issue not found');
-            }
-            if (err) {
-              reject('An error occurred while connecting to MongoDB Atlas');
-            }
-            resolve();
-          });
-        });
-        delete_issue.then(function() {
-          data_base.deleteOne({_id: ObjectId(req.body.issue_id)}, function(err, result) {
-            if (err) {
-              res.status(500).json({err: 'An error occurred while connecting to MongoDB Atlas'});
+        data_base.find({}).toArray(function(error, result) {
+          const find_issue = result.filter(item => ObjectId(item._id).toString() === req.body.issue_id);
+          if (find_issue.length === 0) {
+            res.status(404).json({err: 'Issue not found'});
+            return;
+          }
+          if (error) {
+            res.status(500).json({err: error});
+            return;
+          }
+          data_base.deleteOne({_id: ObjectId(req.body.issue_id)}, function(error, result) {
+            if (error) {
+              res.status(500).json({err: error});
               return;
             }
             res.status(200).json({result: 'Issue: ' + find_issue[0].issue_title + '(_id: ' + req.body.issue_id + ')' + ' has been deleted'});
             db.close();
           })
-        }).catch(function(error) {
-          res.status(500).json({err: error});
-          db.close();
-        }); 
+        })
+      }).catch(function(error) {
+        res.status(500).json({err: error});
       });
     });  
-}; 
+};

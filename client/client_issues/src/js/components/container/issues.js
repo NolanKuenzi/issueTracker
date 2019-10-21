@@ -1,14 +1,18 @@
-/* eslint-disable */
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import regeneratorRuntime, { async } from 'regenerator-runtime';
- 
+
 const Issues = () => {
-  const [defaultData, setDefaultData] = useState(false);
-  const [issueData, updateIssueData] = useState(null);
+  const [issueData, updateIssueData] = useState([]);
+  const [issueTitle, setIssueTitle] = useState('');
+  const [issueText, setIssueText] = useState('');
+  const [createdBy, setCreatedBy] = useState('');
+  const [assignedTo, setAssignedTo] = useState('');
+  const [statusText, setStatusText] = useState('');
   const currentProject = window.location.pathname.replace(/\//g, '');
+
   const query = window.location.search;
-  const url = query === '' ? `/api/issues/${currentProject}` : `/api/issues/${currentProject}${query}`;
+  const url = query === '' ? `/api/issues/${currentProject}` : `/api/issues/${currentProject}${query}`; /* eslint-disable-line */
 
   const getFunc = async () => {
     try {
@@ -21,89 +25,96 @@ const Issues = () => {
           return;
         }
       }
-      updateIssueData('An error occurred while connecting to MongoDB Atlas');
+      updateIssueData('Error: Server Error');
     }
   };
 
   const submitFunc = async event => {
     event.preventDefault();
     event.persist();
-    const upperInputs = document.getElementsByClassName('upperInputs');
-    const lowerInputs = document.getElementsByClassName('lowerInputs');
     const body = {
-      issue_title: upperInputs[0].value,
-      issue_text: upperInputs[1].value,
-      created_by: lowerInputs[0].value,
-      assigned_to: lowerInputs[1].value,
-      status_text: lowerInputs[2].value,
+      issue_title: issueTitle,
+      issue_text: issueText,
+      created_by: createdBy,
+      assigned_to: assignedTo,
+      status_text: statusText,
     };
     try {
       const request = await axios.post(`https://shrouded-waters-89012.herokuapp.com${url}`, body);
-      event.target.reset();
       if (query === '') {
         updateIssueData(request.data.result);
+        setIssueTitle('');
+        setIssueText('');
+        setCreatedBy('');
+        setAssignedTo('');
+        setStatusText('');
       } else {
         window.location = `https://shrouded-waters-89012.herokuapp.com/${currentProject}?`;
       }
-    } catch(error) {
+    } catch (error) {
       if (error.response !== undefined) {
         if (error.response.data.err !== undefined) {
           updateIssueData(error.response.data.err);
           return;
         }
       }
-      updateIssueData('An error occurred while connecting to MongoDB Atlas');
+      updateIssueData('Error: Network Error');
     }
   };
 
   const closeFunc = async event => {
     event.persist();
     try {
-      const request = await axios.put(`https://shrouded-waters-89012.herokuapp.com${url}`, {issue_id: event.target.id, updated_on: new Date(), open: false});
-      alert(`Issue: ${request.data.result[0].issue_title}(_id: ${request.data.result[0]._id}) has been closed`);
-      setDefaultData(false);
-    } catch(error) {
+      const request = await axios.put(`https://shrouded-waters-89012.herokuapp.com${url}`, {
+        issue_id: event.target.id,
+        updated_on: new Date(),
+        open: false,
+      });
+      alert(
+        `Issue: ${request.data.result[0].issue_title}(_id: ${
+          request.data.result[0]._id
+        }) has been closed`
+      );
+      getFunc();
+    } catch (error) {
       if (error.response !== undefined) {
         if (error.response.data.err !== undefined) {
           updateIssueData(error.response.data.err);
           return;
         }
       }
-      updateIssueData('An error occurred while connecting to MongoDB Atlas');
+      updateIssueData('Error: Network Error');
     }
   };
 
   const deleteFunc = async event => {
-    if (event.target.id ===  "") {
+    if (event.target.id === '') {
       const request = await axios.delete(`https://shrouded-waters-89012.herokuapp.com${url}`, null);
       updateIssueData(request.data.result);
       return;
-      /* ^ For testing purposes ^ */
-    } 
+      // ^ for testing
+    }
     try {
       event.persist();
-      const request = await axios.delete(`https://shrouded-waters-89012.herokuapp.com${url}`, { 
+      const request = await axios.delete(`https://shrouded-waters-89012.herokuapp.com${url}`, {
         data: { issue_id: event.target.id },
       });
       alert(request.data.result);
-      setDefaultData(false);
-    } catch(error) {
+      getFunc();
+    } catch (error) {
       if (error.response !== undefined) {
         if (error.response.data.err !== undefined) {
           updateIssueData(error.response.data.err);
           return;
         }
       }
-      updateIssueData('An error occurred while connecting to MongoDB Atlas');
+      updateIssueData('Error: Network Error');
     }
-  }
+  };
 
   useEffect(() => {
-    if (defaultData === false) {
-      getFunc();
-      setDefaultData(true);
-    }
-  }, [defaultData]);
+    getFunc();
+  }, []); /* eslint-disable-line */
 
   /* Styles */
   const liStyleOpen = {
@@ -121,23 +132,44 @@ const Issues = () => {
         <form id="submitForm" onSubmit={event => submitFunc(event)} data-testid="submitForm">
           <h3>Submit a new issue:</h3>
           <div id="topInputs">
-            <input className="upperInputs" type="text" id="topInput" placeholder="*Title " name="issue_title" />
-            <br />
-            <textarea className="upperInputs" type="text" id="textArea" placeholder="*Text" name="issue_text" />
-          </div>
-          <div id="bottomInputs">
-            <input type="text" placeholder="*Created by" className="lowerInputs" name="created_by" />
             <input
               type="text"
-              placeholder="(opt)Assigned to"
+              id="topInput"
+              placeholder="*Title "
+              value={issueTitle}
+              onChange={e => setIssueTitle(e.target.value)}
+            />
+            <br />
+            <textarea
+              type="text"
+              id="textArea"
+              placeholder="*Text"
+              name="issue_text"
+              value={issueText}
+              onChange={e => setIssueText(e.target.value)}
+            />
+          </div>
+          <div id="bottomInputs">
+            <input
+              type="text"
+              placeholder="*Created by"
               className="lowerInputs"
-              name="assigned_to"
+              value={createdBy}
+              onChange={e => setCreatedBy(e.target.value)}
             />
             <input
               type="text"
-              placeholder="(opt)Status text"
               className="lowerInputs"
-              name="status_text"
+              placeholder="(opt)Assigned to"
+              value={assignedTo}
+              onChange={e => setAssignedTo(e.target.value)}
+            />
+            <input
+              type="text"
+              className="lowerInputs"
+              placeholder="(opt)Status text"
+              value={statusText}
+              onChange={e => setStatusText(e.target.value)}
             />
           </div>
           <button type="submit" name="submitButton">
@@ -146,10 +178,16 @@ const Issues = () => {
         </form>
       </div>
       <div id="issueListSection">
-        {issueData === null ? null : typeof issueData === 'string' ? <div id="errDiv">{issueData}</div> : (
-          <ul data-testid="ulData">
+        {typeof issueData === 'string' ? (
+          <div id="errDiv">{issueData}</div>
+        ) : (
+          <ul id="ulData">
             {issueData.map((item, index) => (
-              <li id={item._id} key={item._id} style={item.open === true ? liStyleOpen : liStyleClosed}>
+              <li
+                id={item._id}
+                key={`li-Key-${index}`}
+                style={item.open === true ? liStyleOpen : liStyleClosed}
+              >
                 <div>
                   <div>
                     <span className="smallText">id: {item._id}</span>
@@ -165,11 +203,25 @@ const Issues = () => {
                   <div className="smallText" id="smallTextDiv">
                     <b>Created by: </b>
                     {item.created_by} <b>Assigned to:</b> {item.assigned_to} <b>Created on:</b>{' '}
-                    {item.created_on} <b>Last updated:</b> {item.updated_on} <b> Status:</b> {item.status_text}
+                    {item.created_on} <b>Last updated:</b> {item.updated_on} <b> Status:</b>{' '}
+                    {item.status_text}
                   </div>
                   <div>
-                    <span id={item._id} className="smallText close_Del" onClick={event => closeFunc(event)}>Close?</span>{' '}
-                    <span id={item._id} data-testid={"deleteSpan"+index} className="smallText close_Del" onClick={event => deleteFunc(event)}>Delete?</span>
+                    <span
+                      id={item._id}
+                      className="smallText close_Del"
+                      onClick={event => closeFunc(event)}
+                    >
+                      Close?
+                    </span>{' '}
+                    <span
+                      id={item._id}
+                      data-testid={`deleteSpan${index}`}
+                      className="smallText close_Del"
+                      onClick={event => deleteFunc(event)}
+                    >
+                      Delete?
+                    </span>
                   </div>
                 </div>
               </li>
