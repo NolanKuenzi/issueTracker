@@ -100,6 +100,7 @@ const Issues = () => {
         data: { issue_id: event.target.id },
       });
       alert(request.data.result);
+      window.location = `https://shrouded-waters-89012.herokuapp.com/${currentProject}?`;
       getFunc();
     } catch (error) {
       if (error.response !== undefined) {
