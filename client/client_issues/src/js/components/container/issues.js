@@ -13,10 +13,7 @@ const Issues = () => {
 
   const query = window.location.search;
 
-  const url =
-    query === ''
-      ? `/api/issues/${currentProject}`
-      : `/api/issues/${currentProject}${query}`; /* eslint-disable-line */
+  const url = query === '' ? `/api/issues/${currentProject}`: `/api/issues/${currentProject}${query}`; /* eslint-disable-line */
   const getFunc = async () => {
     try {
       const request = await axios.get(`https://shrouded-waters-89012.herokuapp.com${url}`);
@@ -43,7 +40,10 @@ const Issues = () => {
       status_text: statusText,
     };
     try {
-      const request = await axios.post(`https://shrouded-waters-89012.herokuapp.com/${currentProject}?`, body);
+      const request = await axios.post(
+        `https://shrouded-waters-89012.herokuapp.com/${currentProject}?`,
+        body
+      );
       updateIssueData(request.data.result);
       setIssueTitle('');
       setIssueText('');
