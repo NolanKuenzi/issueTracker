@@ -9,14 +9,20 @@ const Issues = () => {
   const [createdBy, setCreatedBy] = useState('');
   const [assignedTo, setAssignedTo] = useState('');
   const [statusText, setStatusText] = useState('');
-  const currentProject = window.location.pathname.replace(/\//g, '');
+  // const currentProject = window.location.pathname.replace(/\//g, '');
+
+  const currentProject = 'apitest';
 
   const query = window.location.search;
-  const url = query === '' ? `/api/issues/${currentProject}` : `/api/issues/${currentProject}${query}`; /* eslint-disable-line */
 
+  const url =
+    query === ''
+      ? `/api/issues/${currentProject}`
+      : `/api/issues/${currentProject}${query}`; /* eslint-disable-line */
+  // `https://shrouded-waters-89012.herokuapp.com${url}`
   const getFunc = async () => {
     try {
-      const request = await axios.get(`https://shrouded-waters-89012.herokuapp.com${url}`);
+      const request = await axios.get(`http://localhost:3000${url}`);
       updateIssueData(request.data.result);
     } catch (error) {
       if (error.response !== undefined) {
@@ -39,18 +45,15 @@ const Issues = () => {
       assigned_to: assignedTo,
       status_text: statusText,
     };
+    // `https://shrouded-waters-89012.herokuapp.com/${currentProject}?`
     try {
       const request = await axios.post(`https://shrouded-waters-89012.herokuapp.com${url}`, body);
-      if (query === '') {
-        updateIssueData(request.data.result);
-        setIssueTitle('');
-        setIssueText('');
-        setCreatedBy('');
-        setAssignedTo('');
-        setStatusText('');
-      } else {
-        window.location = `https://shrouded-waters-89012.herokuapp.com/${currentProject}?`;
-      }
+      updateIssueData(request.data.result);
+      setIssueTitle('');
+      setIssueText('');
+      setCreatedBy('');
+      setAssignedTo('');
+      setStatusText('');
     } catch (error) {
       if (error.response !== undefined) {
         if (error.response.data.err !== undefined) {
@@ -100,7 +103,6 @@ const Issues = () => {
         data: { issue_id: event.target.id },
       });
       alert(request.data.result);
-      window.location = `https://shrouded-waters-89012.herokuapp.com/${currentProject}?`;
       getFunc();
     } catch (error) {
       if (error.response !== undefined) {

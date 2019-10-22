@@ -173,7 +173,7 @@ const ApiTests = () => {
             value={submitStatus}
             onChange={e => setSubmitStatus(e.target.value)}
           />
-          <button type="submit" name="submitButton">
+          <button type="submit" id="submitButton">
             Submit Issue
           </button>
         </form>
@@ -188,6 +188,7 @@ const ApiTests = () => {
             placeholder="*_id"
             value={updateId}
             onChange={e => setUpdateId(e.target.value)}
+            id="issue_id"
           />
           <input
             type="text"
@@ -227,7 +228,7 @@ const ApiTests = () => {
             value={checkBox}
           />
           <span>*Check to close/re-open issue</span>
-          <button type="submit" name="updateButton">
+          <button type="submit" id="updateButton">
             Submit Issue
           </button>
         </form>
@@ -243,14 +244,12 @@ const ApiTests = () => {
             value={deleteIssue}
             onChange={e => setDeleteIssue(e.target.value)}
           />
-          <button type="submit" name="deleteButton">
+          <button type="submit" id="deleteButton">
             Delete Issue
           </button>
         </form>
       </div>
-      <div id="returnedData" name="axiosData">
-        {data === null ? null : data}
-      </div>
+      <div id="returnedData">{data === null ? null : data}</div>
       <div id="viewProjIssues">
         <h3>To access a project issue page:</h3>
         <span>{'/{projectName}'}</span>
