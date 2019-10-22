@@ -9,8 +9,8 @@ const Issues = () => {
   const [createdBy, setCreatedBy] = useState('');
   const [assignedTo, setAssignedTo] = useState('');
   const [statusText, setStatusText] = useState('');
-  const currentProject = window.location.pathname.replace(/\//g, '');
 
+  const currentProject = 'apitest';
   const query = window.location.search;
 
   const url = query === '' ? `/api/issues/${currentProject}`: `/api/issues/${currentProject}${query}`; /* eslint-disable-line */
@@ -39,11 +39,9 @@ const Issues = () => {
       assigned_to: assignedTo,
       status_text: statusText,
     };
+
     try {
-      const request = await axios.post(
-        `https://shrouded-waters-89012.herokuapp.com/${currentProject}?`,
-        body
-      );
+      const request = await axios.post(`https://shrouded-waters-89012.herokuapp.com${url}?`, body);
       updateIssueData(request.data.result);
       setIssueTitle('');
       setIssueText('');
