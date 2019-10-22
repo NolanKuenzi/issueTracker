@@ -10,7 +10,7 @@ const Issues = () => {
   const [assignedTo, setAssignedTo] = useState('');
   const [statusText, setStatusText] = useState('');
 
-  const currentProject = 'apitest';
+  const currentProject = window.location.pathname.replace(/\//g, '');
   const query = window.location.search;
 
   const url = query === '' ? `/api/issues/${currentProject}`: `/api/issues/${currentProject}${query}`; /* eslint-disable-line */
