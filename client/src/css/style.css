@@ -64,9 +64,13 @@ input {
 }
 
 textarea {
-  height: 2.5em;
   width: 9em;
 }
+/*
+textarea {
+  height: 2.5em;
+  width: 9em;
+} */
 
 button {
   margin-top: 0.2em;
@@ -89,9 +93,8 @@ button:active {
 /* update issue <form /> */
 
 #checkBox {
-  height: 1.2em;
-  position: relative;
-  right: 0.5em;
+  height: 1.5em;
+  width: 1.5em;
 }
 
 label {

@@ -154,6 +154,8 @@ const ApiTests = () => {
             placeholder="*Text"
             value={submitText}
             onChange={e => setSubmitText(e.target.value)}
+            rows="2"
+            width="1"
           />
           <input
             type="text"
@@ -220,14 +222,16 @@ const ApiTests = () => {
             value={updateStatus}
             onChange={e => setUpdateStatus(e.target.value)}
           />
-          <input
-            type="checkbox"
-            id="checkBox"
-            name="check_box"
-            onInput={event => toggleCheckbox(event)}
-            value={checkBox}
-          />
-          <span>*Check to close/re-open issue</span>
+          <label htmlFor="checkBox">
+            <input
+              type="checkbox"
+              id="checkBox"
+              name="check_box"
+              onInput={event => toggleCheckbox(event)}
+              value={checkBox}
+            />
+            <span>*Check to close/re-open</span>
+          </label>
           <button type="submit" id="updateButton">
             Submit Issue
           </button>
